@@ -2,9 +2,9 @@ package pl.chat.groupchat.services;
 
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.models.User;
-
 import java.util.HashMap;
 import java.util.Map;
+
 @Service
 public class UserService {
     private Map<String, User> userDB;
@@ -13,6 +13,7 @@ public class UserService {
     public int getNextId(){
         return nextId++;
     }
+
     public Map<String, User> initUser() {
         userDB = new HashMap<>();
         User oskar = new User(getNextId(),"Oskar","123");

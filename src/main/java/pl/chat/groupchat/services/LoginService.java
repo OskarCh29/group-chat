@@ -1,10 +1,8 @@
 package pl.chat.groupchat.services;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.models.User;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
@@ -12,11 +10,11 @@ import java.util.Scanner;
 
 @Service
 public class LoginService {
+    private static final String SEMAPHORE_FILE="login_semaphore.lock";
     @Autowired
     private ChatService chatService;
     @Autowired
     private UserService userService;
-    private static final String SEMAPHORE_FILE="login_semaphore.lock";
 
     private User login(Scanner scanner) {
         System.out.print("Login: ");
