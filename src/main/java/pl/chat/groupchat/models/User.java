@@ -12,6 +12,8 @@ public class User
     private String username;
     private String password;
 
+    public User(){}
+
     public boolean validatePassword(String password){
         return this.password.equals(password);
     }
