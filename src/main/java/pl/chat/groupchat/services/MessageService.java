@@ -1,16 +1,12 @@
 package pl.chat.groupchat.services;
 
-
 import org.springframework.stereotype.Service;
-
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
 public class MessageService {
     private long nextId=1;
-
 
     public void setNextId(long nextId) {
         this.nextId = nextId;

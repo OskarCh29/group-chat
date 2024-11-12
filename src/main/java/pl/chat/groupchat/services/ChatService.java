@@ -19,24 +19,24 @@ import java.util.List;
 import java.util.Scanner;
 
 @Service
-public class ChatService {
-    @Autowired
-    private MessageService messageService;
+public class ChatService
+{
     private static final String CHAT_HISTORY = "messages.json";
     private static final String LOCK_FILE = "lock_file.lock";
-
+    @Autowired
+    private MessageService messageService;
     private long lastPosition = 0;
     private boolean isChatting = false;
 
 
     public void callChat(User user, Scanner scanner) throws IOException {
         File semaphore = new File(LOCK_FILE);
-        if(semaphore.exists()){
+        if (semaphore.exists()) {
             System.out.println("Another user is writing messages. Please wait");
             return;
         }
-        try{
-            openChat(user,scanner);
+        try {
+            openChat(user, scanner);
         } finally {
             semaphore.delete();
         }
@@ -80,8 +80,8 @@ public class ChatService {
         if (file.exists() && file.length() > 0) {
             messageList = objectMapper.readValue(file, new TypeReference<List<Message>>() {
             });
-            long maxID= messageList.stream().mapToLong(Message::getId).max().orElse(1);
-            messageService.setNextId(maxID+1);
+            long maxID = messageList.stream().mapToLong(Message::getId).max().orElse(1);
+            messageService.setNextId(maxID + 1);
 
         } else {
             messageList = new ArrayList<>();
