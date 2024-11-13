@@ -2,4 +2,8 @@
   "id" : 0,
   "username" : "admin",
   "password" : "admin123"
+}, {
+  "id" : -1,
+  "username" : "Root",
+  "password" : "123"
 } ]

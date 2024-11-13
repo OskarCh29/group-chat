@@ -11,7 +11,8 @@ import java.util.Scanner;
 
 @Service
 public class LoginService {
-    private static final String SEMAPHORE_FILE = "login_semaphore.lock";
+    private static final String SEMAPHORE_FILE = "login_semaphore_";
+    private static final String CHATTING_SEMAPHORE = "chat_semaphore.lock";
     @Autowired
     private ChatService chatService;
     @Autowired
@@ -27,61 +28,65 @@ public class LoginService {
         return (user != null && user.validatePassword(password) ? user : null);
     }
 
-    public void startChat() throws IOException {
-        File lockFile = new File(SEMAPHORE_FILE);
+    private boolean isUserLogged(File userFile) {
+        return userFile.exists();
+    }
 
+    private void initializeSemaphoreFile(File userFile) throws IOException {
+        if (!userFile.exists()) {
+            userFile.createNewFile();
+            userFile.deleteOnExit();
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (userFile.exists()) {
+                    userFile.delete();
+                }
+            }));
+        }
+    }
+
+    public void startChat() throws IOException {
         try (Scanner scanner = new Scanner(System.in)) {
             User user = login(scanner);
             if (user != null) {
-
+                File lockFile = new File(SEMAPHORE_FILE + user.getUsername() + ".lock");
                 if (lockFile.exists()) {
                     System.out.println("Another user is logged on this account");
                     startChat();
                 }
+                initializeSemaphoreFile(lockFile);
                 System.out.println("Login successful");
-
-                lockFile.createNewFile();
-                lockFile.deleteOnExit();
-                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                    if (lockFile.exists()) {
-                        lockFile.delete();
-                    }
-                }));
-
                 windowSwitcher(user, scanner);
             } else {
                 System.out.println("Wrong login or password");
                 startChat();
             }
-        } finally {
-            if (lockFile.exists()) {
-                lockFile.delete();
-            }
         }
     }
 
-    private void windowSwitcher(User user, Scanner scanner) {
+    private void windowSwitcher(User user, Scanner scanner) throws IOException {
         System.out.println("Choose next option:");
         System.out.println("1.New Message");
         System.out.println("2.Chat window");
-        try {
-            String string = scanner.nextLine();
-            int integer = Integer.parseInt(string);
-            if (integer == 1) {
-                chatService.callChat(user, scanner);
-
-            } else if (integer == 2) {
-                System.out.println("Chat history:");
-                chatService.startRefresh();
-
-            } else {
-                System.out.println("Option with this number is unavailable");
+        File chatLock = new File(CHATTING_SEMAPHORE);
+        String string = scanner.nextLine();
+        if (string.equals("1")) {
+            if (isUserLogged(chatLock)) {
+                System.out.println("Another user is typing a message");
                 windowSwitcher(user, scanner);
+            } else {
+                initializeSemaphoreFile(chatLock);
+                chatService.callChat(user, scanner);
             }
-        } catch (NumberFormatException | IOException e) {
-            System.out.println("Wrong input");
+
+        } else if (string.equals("2")) {
+            System.out.println("Chat history:");
+            chatService.startRefresh();
+
+        } else {
+            System.out.println("Option unavailable");
             windowSwitcher(user, scanner);
         }
+
     }
 
 }
