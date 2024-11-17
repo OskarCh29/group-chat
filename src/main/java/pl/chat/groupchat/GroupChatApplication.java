@@ -11,10 +11,12 @@ import pl.chat.groupchat.services.UserService;
 @EnableScheduling
 @SpringBootApplication
 public class GroupChatApplication implements CommandLineRunner {
+	private final LoginService loginService;
 	@Autowired
-	private LoginService loginService;
-	@Autowired
-	private UserService userService;
+	public GroupChatApplication(LoginService loginService){
+		this.loginService = loginService;
+	}
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(GroupChatApplication.class, args);

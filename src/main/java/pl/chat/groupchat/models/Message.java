@@ -16,7 +16,7 @@ public class Message
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private LocalDateTime time;
     private String username;
-    private String message;
+    private String messageBody;
 
     public Message(){}
 }

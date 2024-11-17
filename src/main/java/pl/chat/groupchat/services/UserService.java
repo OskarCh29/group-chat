@@ -1,89 +1,79 @@
 package pl.chat.groupchat.services;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.models.User;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.*;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class UserService {
     private static final String ADMIN_USERNAME = "admin";
     private static final String ADMIN_PASSWORD = "admin123";
     private static final String USERS_DB = "UsersDB.json";
+    private final ObjectMapper mapper;
+    @Getter
     private Map<String, User> userMap;
-    // private int nextId = 1; ogarnąć ID
+    private int lastID;
 
+    public UserService(ObjectMapper objectMapper) {
+        this.mapper = objectMapper;
+        this.userMap = loadUsersIntoMap();
+        initializeAdmin();
 
-    public Map<String, User> loadUsers() {
-        if (userMap == null) {
-            loadUsersIntoMap();
-        }
-        return userMap;
-    }
-
-    private List<User> loadUsersFromFile() {
-        File usersFile = new File(USERS_DB);
-        ObjectMapper mapper = new ObjectMapper();
-        List<User> userList = new ArrayList<>();
-        try {
-            if (usersFile.exists()) {
-                mapper.findAndRegisterModules();
-                userList = mapper.readValue(usersFile, new TypeReference<List<User>>() {
-                });
-            }
-        } catch (IOException exception) {
-            System.out.println("Problem while operating with User File - IOException");
-            exception.printStackTrace();
-        }
-        return userList.isEmpty() ? initializeAdmin(userList) : userList;
 
     }
 
-    private List<User> initializeAdmin(List<User> initialList) {
-        User admin = new User(0, ADMIN_USERNAME, ADMIN_PASSWORD);
-        User rootAdmin = new User(-1,"Root","123");
-        initialList.add(admin);
-        initialList.add(rootAdmin);
-        saveUsersToFile(initialList);
-        return initialList;
-    }
-
-    private void saveUsersToFile(List<User> usersToSave) {
+    private void initializeAdmin() {
         File userFile = new File(USERS_DB);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        try {
-            mapper.writeValue(userFile, usersToSave);
+        if (!userFile.exists() || userFile.length() == 0) {
+            addUser(new User(0, "Root", "123"));
+            addUser(new User(1, ADMIN_USERNAME, ADMIN_PASSWORD));
+        }
+    }
+
+    public void addUser(User user) {
+        userMap.put(user.getUsername(), user);
+        saveUsersToFile(user);
+    }
+
+    private void saveUsersToFile(User user) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USERS_DB, true))) {
+            String userJson = mapper.writeValueAsString(user);
+            writer.write(userJson);
+            writer.newLine();
         } catch (IOException e) {
-            System.out.println("Exception occurred while saving users");
+            log.error("Error while saving user to file", e);
         }
     }
 
     private Map<String, User> loadUsersIntoMap() {
-        userMap = new HashMap<>();
-        for (User user : loadUsersFromFile()) {
-            userMap.put(user.getUsername(), user);
+        Map<String, User> userHashMap = new HashMap<>();
+        File userFile = new File(USERS_DB);
+        if (userFile.exists() && userFile.length() > 0) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(userFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    User user = mapper.readValue(line, User.class);
+                    userHashMap.put(user.getUsername(), user);
+                    if(user.getId() > lastID){
+                        lastID= user.getId();
+                    }
+                }
+
+            } catch (IOException e) {
+                log.error("Error while loading users from file", e);
+            }
         }
-        return userMap;
+        return userHashMap;
     }
-
-    public void addUser(User newUser) {
-        List<User> usersList = loadUsersFromFile();
-        usersList.add(newUser);
-        saveUsersToFile(usersList);
-
-        if (userMap == null) {
-            loadUsersIntoMap();
-        }
-        userMap.put(newUser.getUsername(), newUser);
+    public long getNextId(){
+        return ++lastID;
     }
-
 }
+
