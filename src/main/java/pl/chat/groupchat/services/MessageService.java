@@ -1,23 +1,26 @@
 package pl.chat.groupchat.services;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
+@Getter
+@Setter
 public class MessageService {
-    private long nextId=1;
+    public long lastID;
+    private boolean isChatting = false;
 
-    public void setNextId(long nextId) {
-        this.nextId = nextId;
-    }
-    public long getNextId(){
-        return nextId++;
+
+    public long getNextID() {
+        return ++lastID;
     }
 
-    public String getTimeFormatted(LocalDateTime localDateTime){
+    public String getTimeFormatted(LocalDateTime localDateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return localDateTime.format(formatter);
     }
-
 }
