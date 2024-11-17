@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter;
 @Setter
 public class MessageService {
     public long lastID;
-    private boolean isChatting = false;
 
 
     public long getNextID() {

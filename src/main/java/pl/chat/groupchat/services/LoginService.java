@@ -33,9 +33,6 @@ public class LoginService {
         return (user != null && user.validatePassword(password) ? user : null);
     }
 
-    private boolean isUserLogged(File userFile) {
-        return userFile.exists();
-    }
 
     private void initializeSemaphoreFile(File userFile) throws IOException {
         if (!userFile.exists()) {
