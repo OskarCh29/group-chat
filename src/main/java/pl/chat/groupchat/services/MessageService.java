@@ -1,25 +1,48 @@
 package pl.chat.groupchat.services;
 
-import lombok.Getter;
-import lombok.Setter;
+
 import org.springframework.stereotype.Service;
+import pl.chat.groupchat.models.Message;
+import pl.chat.groupchat.models.User;
+import pl.chat.groupchat.repositories.MessageRepository;
+import pl.chat.groupchat.repositories.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 
 @Service
-@Getter
-@Setter
 public class MessageService {
-    public long lastID;
+    private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
-
-    public long getNextID() {
-        return ++lastID;
+    public MessageService(MessageRepository messageRepository, UserRepository userRepository) {
+        this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
     }
 
-    public String getTimeFormatted(LocalDateTime localDateTime) {
+    public Message saveMessage(String messageBody, int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Message message = new Message();
+        message.setCreatedAt(LocalDateTime.now());
+        message.setMessageBody(messageBody);
+        message.setUser(user);
+        return messageRepository.save(message);
+    }
+
+    public void deleteMessage(Message message) {
+        messageRepository.delete(message);
+    }
+
+    public Optional<Message> findMessageById(Long id) {
+        return messageRepository.findById(id);
+    }
+
+    public String getTimeFormatted(LocalDateTime localDateTime){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return localDateTime.format(formatter);
     }
+
+
 }

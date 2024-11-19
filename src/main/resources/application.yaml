@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  main:
+    web-application-type: none
+  datasource:
+    url: jdbc:mysql://localhost:3306/group_chat
+    username: root
+    password: root
+    hikari:
+      schema: group_chat
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    default-schema: group_chat

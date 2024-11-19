@@ -7,6 +7,7 @@ import pl.chat.groupchat.models.User;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Scanner;
 
 
@@ -29,8 +30,8 @@ public class LoginService {
         log.info("Password:");
         String password = scanner.nextLine();
 
-        User user = userService.getUserMap().get(username);
-        return (user != null && user.validatePassword(password) ? user : null);
+        User user = userService.findUserByUsername(username).orElse(null);
+        return (user !=null && user.validatePassword(password) ? user : null);
     }
 
 
