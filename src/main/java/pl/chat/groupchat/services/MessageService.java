@@ -2,13 +2,14 @@ package pl.chat.groupchat.services;
 
 
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.models.Message;
-import pl.chat.groupchat.models.User;
+import pl.chat.groupchat.models.entities.Message;
+import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.repositories.MessageRepository;
 import pl.chat.groupchat.repositories.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -37,6 +38,9 @@ public class MessageService {
 
     public Optional<Message> findMessageById(Long id) {
         return messageRepository.findById(id);
+    }
+    public List<Message> getAllMessages(){
+        return messageRepository.findAll();
     }
 
     public String getTimeFormatted(LocalDateTime localDateTime){

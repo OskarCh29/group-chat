@@ -1,5 +1,6 @@
-package pl.chat.groupchat.models;
+package pl.chat.groupchat.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "messages")
 public class Message {
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +34,7 @@ public class Message {
     @Column(name = "messageBody")
     private String messageBody;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
