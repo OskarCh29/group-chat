@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  datasource:
+    url: jdbc:mysql://localhost:3306/group_chat
+    username: root
+    password: root
+    hikari:
+      schema: group_chat
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    default-schema: group_chat
+security:
+  saltPrefix: "e+v7qum7jjJM$q#uaNgh+$uRP3x1Q&thqmtvopoeZ#BgZWfNpe"
+  saltSuffix: "Z9QXqxnrbViCjikA5Q1*!Gzo)j:pE15PrF5M//a3:b7ZuCi@=R"
