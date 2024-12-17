@@ -1,0 +1,51 @@
+package pl.chat.groupchat.services;
+
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.stereotype.Service;
+import pl.chat.groupchat.exception.UnauthorizedAccessException;
+import pl.chat.groupchat.models.entities.User;
+import pl.chat.groupchat.models.request.MessageRequest;
+import java.util.Base64;
+
+@Service
+public class AuthorizationService {
+    private final UserService userService;
+
+
+    public AuthorizationService(UserService userService) {
+        this.userService = userService;
+    }
+
+    private String generateToken() {
+        return RandomStringUtils.randomAlphabetic(32);
+    }
+
+    public void updateToken(User user) {
+        user.setToken(generateToken());
+        userService.saveUser(user, false);
+
+    }
+
+    public boolean validateUser(String rawToken, MessageRequest messageRequest) throws UnauthorizedAccessException {
+        if (rawToken == null || messageRequest == null) {
+            throw new UnauthorizedAccessException("Access denied: Token or user missing");
+        }
+        byte[] decode = Base64.getDecoder().decode(rawToken);
+        String decodedString = new String(decode);
+        String[] requestedValues = decodedString.split(":");
+        if(requestedValues.length !=2){
+            throw new UnauthorizedAccessException("Access denied: Token or user invalid");
+        }
+        String userId = requestedValues[0];
+        String token = requestedValues[1];
+        if(userId.equals(String.valueOf(messageRequest.getUserId())) && token.equals(messageRequest.getToken())){
+            return true;
+        }
+        else {
+            throw new UnauthorizedAccessException("Access denied - token or user invalid");
+        }
+
+
+    }
+}
