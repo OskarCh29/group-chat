@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 public class MessageResponse {
     private String messageBody;
     private LocalDateTime createdAt;
-    private String userName;
+    private String username;
 
     public MessageResponse(Message message) {
         this.messageBody = message.getMessageBody();
         this.createdAt = message.getCreatedAt();
-        this.userName = message.getUser().getUsername();
+        this.username = message.getUser().getUsername();
     }
 }

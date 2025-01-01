@@ -1,4 +1,8 @@
 spring:
+  web:
+    resources:
+      static-locations:
+        - file:C:\Users\oskar\Visual Code Studio\groupChat
   jpa:
     hibernate:
       naming:
@@ -14,6 +18,15 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: true
     default-schema: group_chat
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: oskartestowy1@gmail.com
+    password: rluo dfld zuev lpij
+    protocol: smtp
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
 security:
   saltPrefix: "e+v7qum7jjJM$q#uaNgh+$uRP3x1Q&thqmtvopoeZ#BgZWfNpe"
   saltSuffix: "Z9QXqxnrbViCjikA5Q1*!Gzo)j:pE15PrF5M//a3:b7ZuCi@=R"
