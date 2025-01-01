@@ -30,16 +30,19 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User saveUser(User user, boolean isNewUser) {
+    public User saveUser(User newUser, boolean isNewUser) {
         if (isNewUser) {
-            User newUser = userRepository.findByUsername(user.getUsername()).orElse(null);
-            if (newUser != null) {
-                throw new UserAlreadyExistsException("User with that username already exists");
+            User user = userRepository.findByEmail(newUser.getEmail()).orElse(null);
+            if (user != null) {
+                throw new UserAlreadyExistsException("Account with this email already exists");
             }
-            String hashPassword = hashPassword(saltPrefix + user.getPassword() + saltSuffix);
-            user.setPassword(hashPassword);
+            else if(userRepository.findByUsername(newUser.getUsername()).isPresent()){
+                throw new UserAlreadyExistsException("User with this username already exists");
+            }
+            String hashPassword = hashPassword(newUser.getPassword());
+            newUser.setPassword(hashPassword);
         }
-        return userRepository.save(user);
+        return userRepository.save(newUser);
     }
 
 

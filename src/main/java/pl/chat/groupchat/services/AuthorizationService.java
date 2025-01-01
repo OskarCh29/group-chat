@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import pl.chat.groupchat.exception.UnauthorizedAccessException;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.request.MessageRequest;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 
 @Service
@@ -45,7 +48,22 @@ public class AuthorizationService {
         else {
             throw new UnauthorizedAccessException("Access denied - token or user invalid");
         }
+    }
+    public boolean validateEmail(String code, User user){
+        LocalDateTime timeNow = LocalDateTime.now();
+        LocalDateTime codeTime = user.getVerification().getCreatedAt();
+        Duration duration = Duration.between(codeTime,timeNow);
+        String verificationCode = user.getVerification().getVerificationCode();
+        if(duration.toHours() <24 && code.equals(verificationCode)){
+            user.setActive(true);
+            userService.saveUser(user,false);
+            return true;
+        }
+        else {
+            throw  new UnauthorizedAccessException("Verification Code not valid or expired");
+        }
 
 
     }
+
 }
