@@ -7,7 +7,7 @@ import pl.chat.groupchat.models.entities.Verification;
 import java.util.Optional;
 
 @Repository
-public interface EmailRepository extends JpaRepository<Verification,Integer> {
+public interface EmailRepository extends JpaRepository<Verification, Integer> {
     Optional<Verification> findUserByVerificationCode(String code);
 
 }

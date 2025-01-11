@@ -38,4 +38,5 @@ public class Message {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
+
 }

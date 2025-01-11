@@ -5,21 +5,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler({UserNotFoundException.class})
+    @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
 
-    @ExceptionHandler({UserAlreadyExistsException.class})
+    @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
 
-    @ExceptionHandler({UnauthorizedAccessException.class})
-    public ResponseEntity<Object> handleUnauthorizedAccessException (UnauthorizedAccessException exception) {
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<Object> handleUnauthorizedAccessException(UnauthorizedAccessException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
     }
 }

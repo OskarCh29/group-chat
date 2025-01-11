@@ -1,6 +1,5 @@
 package pl.chat.groupchat.services;
 
-
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.exception.UserNotFoundException;
 import pl.chat.groupchat.models.entities.Message;
@@ -11,7 +10,6 @@ import pl.chat.groupchat.repositories.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 
 @Service
 public class MessageService {
@@ -43,6 +41,5 @@ public class MessageService {
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
     }
-
 
 }

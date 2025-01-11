@@ -18,12 +18,11 @@ public class ChatController {
     private final MessageService messageService;
     private final AuthorizationService authorizationService;
 
-
     @Autowired
-    public ChatController(MessageService messageService, AuthorizationService authorizationService) {
+    public ChatController(MessageService messageService,
+                          AuthorizationService authorizationService) {
         this.messageService = messageService;
         this.authorizationService = authorizationService;
-
 
     }
 
@@ -42,7 +41,6 @@ public class ChatController {
         Message saveMessage = messageService.saveMessage(messageRequest.getMessageBody(), messageRequest.getUserId());
         MessageResponse messageResponse = new MessageResponse(saveMessage);
         return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse);
-
 
     }
 }

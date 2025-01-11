@@ -1,7 +1,6 @@
 package pl.chat.groupchat.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,12 +25,7 @@ public class EmailController {
     @PostMapping("/verifyEmail")
     public ResponseEntity<String> verifyEmail(@RequestBody VerificationRequest verificationRequest) {
         String code = verificationRequest.getVerificationCode();
-        if (authorizationService.validateEmail(
-                code, emailService.findUserByCode(code))
-        )
-        {
-            return ResponseEntity.ok("User Verified");
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        authorizationService.validateEmail(code, emailService.findUserByCode(code));
+        return ResponseEntity.ok("User Verified");
     }
 }
