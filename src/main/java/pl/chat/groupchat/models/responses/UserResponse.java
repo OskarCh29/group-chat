@@ -13,7 +13,7 @@ public class UserResponse {
 
     public UserResponse(User user) {
         this.username = user.getUsername();
-        this.userId =user.getId();
+        this.userId = user.getId();
         this.token = user.getToken();
     }
 }

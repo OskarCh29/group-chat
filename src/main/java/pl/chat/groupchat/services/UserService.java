@@ -4,6 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.config.AppConfig;
+import pl.chat.groupchat.exception.UnauthorizedAccessException;
 import pl.chat.groupchat.exception.UserAlreadyExistsException;
 import pl.chat.groupchat.exception.UserNotFoundException;
 import pl.chat.groupchat.models.entities.User;
@@ -17,7 +18,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final String saltPrefix;
     private final String saltSuffix;
-
 
     @Autowired
     public UserService(UserRepository userRepository, AppConfig appConfig) {
@@ -35,8 +35,7 @@ public class UserService {
             User user = userRepository.findByEmail(newUser.getEmail()).orElse(null);
             if (user != null) {
                 throw new UserAlreadyExistsException("Account with this email already exists");
-            }
-            else if(userRepository.findByUsername(newUser.getUsername()).isPresent()){
+            } else if (userRepository.findByUsername(newUser.getUsername()).isPresent()) {
                 throw new UserAlreadyExistsException("User with this username already exists");
             }
             String hashPassword = hashPassword(newUser.getPassword());
@@ -45,14 +44,12 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-
     public void deleteById(int userId) {
         userRepository.deleteById(userId);
     }
 
     public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(
-                () -> new UserNotFoundException("User not Found"));
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not Found"));
     }
 
     public List<User> getAllUsers() {
@@ -63,14 +60,18 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public boolean validatePassword(String password, User user) {
+        if (user.getPassword().equals(hashPassword(password)) && user.isActive()) {
+            return true;
+        } else if (!user.isActive()) {
+            throw new UnauthorizedAccessException("Account not active. Please verify your e-mail");
+        } else {
+            throw new UnauthorizedAccessException("Wrong login or password!");
+        }
+    }
+
     private String hashPassword(String password) {
         String hashedPassword = saltPrefix + password + saltSuffix;
         return DigestUtils.sha256Hex(hashedPassword);
     }
-
-    public boolean validatePassword(String password, User user) {
-        return user.getPassword().equals(hashPassword(password));
-    }
-
 }
-

@@ -12,6 +12,7 @@ import pl.chat.groupchat.utils.DateTimeDeserializer;
 import pl.chat.groupchat.utils.DateTimeSerializer;
 
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,25 +21,21 @@ import java.time.LocalDateTime;
 @Table(name = "verification")
 public class Verification {
     @Id
-    @Column(name="id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(unique = true)
     private String verificationCode;
 
-    @Column(name="createdAt")
+    @Column(name = "createdAt")
     @JsonSerialize(using = DateTimeSerializer.class)
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
     @JsonBackReference
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="userId",nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
-
-
-
-
 
 }

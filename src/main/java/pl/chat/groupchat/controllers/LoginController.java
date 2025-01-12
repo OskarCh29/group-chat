@@ -14,7 +14,7 @@ import pl.chat.groupchat.services.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/api")
 public class LoginController {
     private final UserService userService;
     private final AuthorizationService authorizationService;
@@ -29,21 +29,13 @@ public class LoginController {
     }
 
     @PostMapping("/user")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest loginRequest) {
         User user = userService.findUserByUsername(loginRequest.getUsername());
-
-        if (userService.validatePassword(loginRequest.getPassword(), user) && user.isActive()) {
-            authorizationService.updateToken(user);
-            UserResponse userResponse = new UserResponse(user);
-
-            return ResponseEntity.ok(userResponse);
-        }
-        else if(userService.validatePassword(loginRequest.getPassword(), user) && !user.isActive()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        userService.validatePassword(loginRequest.getPassword(), user);
+        authorizationService.updateToken(user);
+        UserResponse userResponse = new UserResponse(user);
+        return ResponseEntity.ok(userResponse);
     }
-
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {

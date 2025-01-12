@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class GroupChatApplication implements CommandLineRunner {
 
-
     public static void main(String[] args) {
         SpringApplication.run(GroupChatApplication.class, args);
     }
@@ -17,6 +16,5 @@ public class GroupChatApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
     }
-
 
 }

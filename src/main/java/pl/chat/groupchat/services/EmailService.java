@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 
 @Service
 public class EmailService {
+    private static final int VERIFICATION_CODE_LENGTH = 10;
     private final Mailer mailer;
     private final EmailRepository emailRepository;
     private final UserService userService;
 
-    @Value("${spring.mail.username}")
-    private String username;
+    private final String username;
 
     public EmailService(
             @Value("${spring.mail.host}") String host,
@@ -30,7 +30,7 @@ public class EmailService {
             @Value("${spring.mail.username}") String username,
             @Value("${spring.mail.password}") String password,
             EmailRepository emailRepository, UserService userService) {
-
+        this.username = username;
         this.mailer = MailerBuilder
                 .withSMTPServer(host, port, username, password)
                 .withTransportStrategy(TransportStrategy.SMTP)
@@ -40,8 +40,7 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String userEmail) {
-        User user = userService.findUserByEmail(userEmail).orElseThrow(
-                () -> new UserNotFoundException("User not found"));
+        User user = userService.findUserByEmail(userEmail).orElseThrow(() -> new UserNotFoundException("User not found"));
         createVerification(user);
         Email email = EmailBuilder.startingBlank()
                 .from("GroupChat", username)
@@ -52,9 +51,15 @@ public class EmailService {
         mailer.sendMail(email);
     }
 
-
     public String generateVerificationCode() {
-        return RandomStringUtils.randomAlphabetic(10);
+        return RandomStringUtils.randomAlphabetic(VERIFICATION_CODE_LENGTH);
+    }
+
+    public User findUserByCode(String code) {
+        Verification verification = emailRepository.findUserByVerificationCode(code)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return verification.getUser();
+
     }
 
     private void createVerification(User user) {
@@ -65,13 +70,6 @@ public class EmailService {
         verification.setCreatedAt(LocalDateTime.now());
         user.setVerification(verification);
         emailRepository.save(verification);
-    }
-
-    public User findUserByCode(String code) {
-        Verification verification = emailRepository.findUserByVerificationCode(code)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-        return verification.getUser();
-
     }
 
 }

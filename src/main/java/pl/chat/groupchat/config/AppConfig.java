@@ -20,7 +20,6 @@ public class AppConfig {
     @Value("${security.saltSuffix}")
     private String saltSuffix;
 
-
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
