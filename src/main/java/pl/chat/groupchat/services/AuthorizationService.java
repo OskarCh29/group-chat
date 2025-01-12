@@ -22,7 +22,7 @@ public class AuthorizationService {
 
     public void updateToken(User user) {
         user.setToken(generateToken());
-        userService.saveUser(user, false);
+        userService.updateUser(user);
 
     }
 
@@ -52,7 +52,7 @@ public class AuthorizationService {
         String verificationCode = user.getVerification().getVerificationCode();
         if (duration.toHours() < CODE_EXPIRY_TIME && code.equals(verificationCode)) {
             user.setActive(true);
-            userService.saveUser(user, false);
+            userService.updateUser(user);
             return true;
         } else {
             throw new UnauthorizedAccessException("Verification Code not valid or expired");

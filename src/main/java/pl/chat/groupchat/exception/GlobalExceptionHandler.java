@@ -21,4 +21,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleUnauthorizedAccessException(UnauthorizedAccessException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
     }
+    @ExceptionHandler(ValidateExpiredException.class)
+    public ResponseEntity<Object> handleValidateExpiredException(ValidateExpiredException exception){
+        return ResponseEntity.status(HttpStatus.GONE).body(exception.getMessage());
+    }
 }

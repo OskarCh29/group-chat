@@ -33,6 +33,17 @@ public class Verification {
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
+    @Column(name = "resetToken")
+    private String resetToken;
+
+    @Column(name="resetTokenCreatedAt")
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    @JsonSerialize(using=DateTimeSerializer.class)
+    private LocalDateTime resetTokenCreatedAt;
+
+    @Column(name="isResetUsed")
+    private boolean isResetUsed;
+
     @JsonBackReference
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId", nullable = false)
