@@ -1,4 +1,4 @@
-package pl.chat.groupchat.config;
+package pl.chat.groupchat.configs;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;

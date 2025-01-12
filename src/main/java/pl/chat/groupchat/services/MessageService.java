@@ -1,7 +1,7 @@
 package pl.chat.groupchat.services;
 
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.exception.UserNotFoundException;
+import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.Message;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.repositories.MessageRepository;

@@ -1,4 +1,4 @@
-package pl.chat.groupchat.models.request;
+package pl.chat.groupchat.models.requests;
 
 import lombok.Getter;
 import lombok.Setter;

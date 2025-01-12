@@ -22,11 +22,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE users FROM users JOIN verification ON users.id = verification.userId " +
-            "WHERE DATEDIFF(CURDATE(),verification.createdAt) >1 AND users.isActive = FALSE ",nativeQuery = true)
+    @Query(value = "DELETE users FROM users JOIN verification ON users.id = verification.userId "
+            + "WHERE DATEDIFF(CURDATE(),verification.createdAt) >1 AND users.isActive = FALSE ", nativeQuery = true)
     void deleteInActiveUsers();
 
-    @Query(value = "SELECT users.* FROM users JOIN verification ON users.id = verification.userId " +
-            "WHERE verification.resetToken = :resetToken",nativeQuery = true)
+    @Query(value = "SELECT users.* FROM users JOIN verification ON users.id = verification.userId "
+            + "WHERE verification.resetToken = :resetToken", nativeQuery = true)
     Optional<User> findByResetCode(String resetToken);
 }

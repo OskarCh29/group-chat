@@ -3,11 +3,11 @@ package pl.chat.groupchat.services;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.config.AppConfig;
-import pl.chat.groupchat.exception.UnauthorizedAccessException;
-import pl.chat.groupchat.exception.UserAlreadyExistsException;
-import pl.chat.groupchat.exception.UserNotFoundException;
-import pl.chat.groupchat.exception.ValidateExpiredException;
+import pl.chat.groupchat.configs.AppConfig;
+import pl.chat.groupchat.exceptions.UnauthorizedAccessException;
+import pl.chat.groupchat.exceptions.UserAlreadyExistsException;
+import pl.chat.groupchat.exceptions.UserNotFoundException;
+import pl.chat.groupchat.exceptions.ValidateExpiredException;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.entities.Verification;
 import pl.chat.groupchat.repositories.UserRepository;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    private final static int RESET_LINK_DURATION = 24;
+    private static final int RESET_LINK_DURATION = 24;
     private final UserRepository userRepository;
     private final String saltPrefix;
     private final String saltSuffix;
