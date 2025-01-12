@@ -11,8 +11,6 @@ import pl.chat.groupchat.services.AuthorizationService;
 import pl.chat.groupchat.services.EmailService;
 import pl.chat.groupchat.services.UserService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
 public class LoginController {
@@ -37,18 +35,18 @@ public class LoginController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponse> userResponses = userService.getAllUsers().stream()
-                .map(UserResponse::new).toList();
-        return ResponseEntity.ok(userResponses);
-    }
-
     @PostMapping("/newUser")
     public ResponseEntity<UserResponse> createUser(@RequestBody User user) {
-        userService.saveUser(user, true);
+        userService.updateUser(user);
         emailService.sendVerificationEmail(user.getEmail());
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
+
+    @PutMapping("/user")
+    public ResponseEntity<String> logout(@RequestParam Integer userId) {
+        userService.logoutUser(userId);
+        return ResponseEntity.ok("User logged out");
+
     }
 }

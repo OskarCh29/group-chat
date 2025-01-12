@@ -1,12 +1,8 @@
 package pl.chat.groupchat.services;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.simplejavamail.api.email.Email;
-import org.simplejavamail.api.mailer.Mailer;
-import org.simplejavamail.api.mailer.config.TransportStrategy;
-import org.simplejavamail.email.EmailBuilder;
-import org.simplejavamail.mailer.MailerBuilder;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.exception.UserNotFoundException;
 import pl.chat.groupchat.models.entities.User;
@@ -18,37 +14,26 @@ import java.time.LocalDateTime;
 @Service
 public class EmailService {
     private static final int VERIFICATION_CODE_LENGTH = 10;
-    private final Mailer mailer;
     private final EmailRepository emailRepository;
     private final UserService userService;
+    private final JavaMailSender mailSender;
 
-    private final String username;
-
-    public EmailService(
-            @Value("${spring.mail.host}") String host,
-            @Value("${spring.mail.port}") int port,
-            @Value("${spring.mail.username}") String username,
-            @Value("${spring.mail.password}") String password,
-            EmailRepository emailRepository, UserService userService) {
-        this.username = username;
-        this.mailer = MailerBuilder
-                .withSMTPServer(host, port, username, password)
-                .withTransportStrategy(TransportStrategy.SMTP)
-                .buildMailer();
+    public EmailService(EmailRepository emailRepository, UserService userService, JavaMailSender mailSender) {
         this.emailRepository = emailRepository;
         this.userService = userService;
+        this.mailSender = mailSender;
     }
 
     public void sendVerificationEmail(String userEmail) {
-        User user = userService.findUserByEmail(userEmail).orElseThrow(() -> new UserNotFoundException("User not found"));
-        createVerification(user);
-        Email email = EmailBuilder.startingBlank()
-                .from("GroupChat", username)
-                .to(userEmail)
-                .withSubject("Your account activation Code:")
-                .withPlainText(user.getVerification().getVerificationCode())
-                .buildEmail();
-        mailer.sendMail(email);
+        String verifyCode = generateVerificationCode();
+        String link = "http://localhost:8080/email/activate/" + verifyCode;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(userEmail);
+        message.setSubject("Activation link");
+        message.setText("Click the link to activate your account: " + link);
+        User user = userService.findUserByEmail(userEmail).orElseThrow(() -> new UserNotFoundException("No such user"));
+        createVerification(user, verifyCode);
+        mailSender.send(message);
     }
 
     public String generateVerificationCode() {
@@ -62,8 +47,12 @@ public class EmailService {
 
     }
 
-    private void createVerification(User user) {
-        String code = generateVerificationCode();
+    private void createVerification(User user, String code) {
+        Verification refreshVerification = user.getVerification();
+        if (refreshVerification != null) {
+            refreshVerification.setVerificationCode(code);
+            refreshVerification.setCreatedAt(LocalDateTime.now());
+        }
         Verification verification = new Verification();
         verification.setVerificationCode(code);
         verification.setUser(user);
@@ -72,4 +61,22 @@ public class EmailService {
         emailRepository.save(verification);
     }
 
+
+    public void sendResetEmail(String email) {
+        User user = userService.findUserByEmail(email).orElseThrow(() -> new UserNotFoundException("No user connected with that email"));
+        String resetCode = generateVerificationCode();
+        String resetLink = "http://localhost:8080/resetPassword.html?code=" + resetCode;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Your link to reset password in GroupChat service");
+        message.setText("Click the link to reset your password: " + resetLink);
+        mailSender.send(message);
+
+        Verification verification = user.getVerification();
+        verification.setResetToken(resetCode);
+        verification.setResetTokenCreatedAt(LocalDateTime.now());
+        verification.setResetUsed(false);
+        userService.updateUser(user);
+
+    }
 }
