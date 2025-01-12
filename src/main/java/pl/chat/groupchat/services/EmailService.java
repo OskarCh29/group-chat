@@ -4,7 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.exception.UserNotFoundException;
+import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.entities.Verification;
 import pl.chat.groupchat.repositories.EmailRepository;
@@ -60,7 +60,6 @@ public class EmailService {
         user.setVerification(verification);
         emailRepository.save(verification);
     }
-
 
     public void sendResetEmail(String email) {
         User user = userService.findUserByEmail(email).orElseThrow(() -> new UserNotFoundException("No user connected with that email"));

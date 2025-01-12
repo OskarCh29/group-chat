@@ -36,12 +36,12 @@ public class Verification {
     @Column(name = "resetToken")
     private String resetToken;
 
-    @Column(name="resetTokenCreatedAt")
+    @Column(name = "resetTokenCreatedAt")
     @JsonDeserialize(using = DateTimeDeserializer.class)
-    @JsonSerialize(using=DateTimeSerializer.class)
+    @JsonSerialize(using = DateTimeSerializer.class)
     private LocalDateTime resetTokenCreatedAt;
 
-    @Column(name="isResetUsed")
+    @Column(name = "isResetUsed")
     private boolean isResetUsed;
 
     @JsonBackReference

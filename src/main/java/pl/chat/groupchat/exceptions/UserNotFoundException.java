@@ -1,4 +1,4 @@
-package pl.chat.groupchat.exception;
+package pl.chat.groupchat.exceptions;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {

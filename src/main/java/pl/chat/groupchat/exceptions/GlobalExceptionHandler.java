@@ -1,4 +1,4 @@
-package pl.chat.groupchat.exception;
+package pl.chat.groupchat.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleUnauthorizedAccessException(UnauthorizedAccessException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
     }
+
     @ExceptionHandler(ValidateExpiredException.class)
-    public ResponseEntity<Object> handleValidateExpiredException(ValidateExpiredException exception){
+    public ResponseEntity<Object> handleValidateExpiredException(ValidateExpiredException exception) {
         return ResponseEntity.status(HttpStatus.GONE).body(exception.getMessage());
     }
 }

@@ -1,4 +1,4 @@
-package pl.chat.groupchat.config;
+package pl.chat.groupchat.configs;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,5 @@ public class AppConfig {
 
     @Value("${security.saltSuffix}")
     private String saltSuffix;
-
-
 }
 

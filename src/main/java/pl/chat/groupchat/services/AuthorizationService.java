@@ -2,9 +2,9 @@ package pl.chat.groupchat.services;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.exception.UnauthorizedAccessException;
+import pl.chat.groupchat.exceptions.UnauthorizedAccessException;
 import pl.chat.groupchat.models.entities.User;
-import pl.chat.groupchat.models.request.MessageRequest;
+import pl.chat.groupchat.models.requests.MessageRequest;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

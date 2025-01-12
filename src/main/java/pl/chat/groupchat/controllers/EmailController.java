@@ -3,7 +3,7 @@ package pl.chat.groupchat.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.chat.groupchat.models.request.ResetRequest;
+import pl.chat.groupchat.models.requests.ResetRequest;
 import pl.chat.groupchat.services.AuthorizationService;
 import pl.chat.groupchat.services.EmailService;
 import pl.chat.groupchat.services.UserService;
@@ -37,9 +37,8 @@ public class EmailController {
 
     @PutMapping("/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestBody ResetRequest resetRequest) {
-        userService.resetPassword(resetRequest.getResetCode(),resetRequest.getNewPassword());
+        userService.resetPassword(resetRequest.getResetCode(), resetRequest.getNewPassword());
         return ResponseEntity.ok("Password has been updated. You can log in now");
     }
-
 
 }

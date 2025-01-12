@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.chat.groupchat.models.entities.User;
-import pl.chat.groupchat.models.request.LoginRequest;
+import pl.chat.groupchat.models.requests.LoginRequest;
 import pl.chat.groupchat.models.responses.UserResponse;
 import pl.chat.groupchat.services.AuthorizationService;
 import pl.chat.groupchat.services.EmailService;
