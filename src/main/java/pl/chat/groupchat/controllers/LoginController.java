@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.requests.LoginRequest;
+import pl.chat.groupchat.models.responses.GenericResponse;
 import pl.chat.groupchat.models.responses.UserResponse;
 import pl.chat.groupchat.services.AuthorizationService;
 import pl.chat.groupchat.services.EmailService;
@@ -44,9 +45,9 @@ public class LoginController {
     }
 
     @PutMapping("/user")
-    public ResponseEntity<String> logout(@RequestParam Integer userId) {
+    public ResponseEntity<GenericResponse> logout(@RequestParam Integer userId) {
         userService.logoutUser(userId);
-        return ResponseEntity.ok("User logged out");
+        return ResponseEntity.ok(new GenericResponse("User logged out"));
 
     }
 }

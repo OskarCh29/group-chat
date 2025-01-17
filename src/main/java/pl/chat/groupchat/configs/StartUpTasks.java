@@ -1,10 +1,12 @@
 package pl.chat.groupchat.configs;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.chat.groupchat.repositories.UserRepository;
 
 @Component
+@Slf4j
 public class StartUpTasks {
 
     private final UserRepository userRepository;
@@ -18,7 +20,7 @@ public class StartUpTasks {
             userRepository.resetTokens();
             userRepository.deleteInActiveUsers();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            log.error(e.getMessage());
         }
 
     }

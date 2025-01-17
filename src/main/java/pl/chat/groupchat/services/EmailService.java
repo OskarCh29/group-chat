@@ -31,7 +31,7 @@ public class EmailService {
         message.setTo(userEmail);
         message.setSubject("Activation link");
         message.setText("Click the link to activate your account: " + link);
-        User user = userService.findUserByEmail(userEmail).orElseThrow(() -> new UserNotFoundException("No such user"));
+        User user = userService.findUserByEmail(userEmail);
         createVerification(user, verifyCode);
         mailSender.send(message);
     }
@@ -62,7 +62,7 @@ public class EmailService {
     }
 
     public void sendResetEmail(String email) {
-        User user = userService.findUserByEmail(email).orElseThrow(() -> new UserNotFoundException("No user connected with that email"));
+        User user = userService.findUserByEmail(email);
         String resetCode = generateVerificationCode();
         String resetLink = "http://localhost:8080/resetPassword.html?code=" + resetCode;
         SimpleMailMessage message = new SimpleMailMessage();

@@ -4,7 +4,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.exceptions.UnauthorizedAccessException;
 import pl.chat.groupchat.models.entities.User;
-import pl.chat.groupchat.models.requests.MessageRequest;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -26,26 +25,38 @@ public class AuthorizationService {
 
     }
 
-    public boolean validateUser(String rawToken, MessageRequest messageRequest) throws UnauthorizedAccessException {
-        if (rawToken == null || messageRequest == null) {
-            throw new UnauthorizedAccessException("Access denied: Token or user missing");
-        }
-        byte[] decode = Base64.getDecoder().decode(rawToken);
-        String decodedString = new String(decode);
-        String[] requestedValues = decodedString.split(":");
-        if (requestedValues.length != 2) {
-            throw new UnauthorizedAccessException("Access denied: Token or user invalid");
-        }
-        String userId = requestedValues[0];
-        String token = requestedValues[1];
-        if (userId.equals(String.valueOf(messageRequest.getUserId())) && token.equals(messageRequest.getToken())) {
-            return true;
-        } else {
-            throw new UnauthorizedAccessException("Access denied - token or user invalid");
+    public void validateUser(String rawToken) {
+        try {
+            if (rawToken == null) {
+                throw new UnauthorizedAccessException("Access denied: Token or user missing");
+            }
+            String[] tokenValues = decodeToken(rawToken);
+            String userId = tokenValues[0];
+            String token = tokenValues[1];
+            User user = userService.findUserById(Integer.parseInt(userId));
+            if (!user.getToken().equals(token)) {
+                throw new UnauthorizedAccessException("Access denied - token or user invalid");
+            }
+        } catch (NumberFormatException e) {
+            throw new UnauthorizedAccessException("Access denied - user token invalid");
         }
     }
 
-    public boolean validateEmail(String code, User user) {
+    private String[] decodeToken(String rawToken) {
+        try {
+            byte[] decode = Base64.getDecoder().decode(rawToken);
+            String decodedToken = new String(decode);
+            String[] rawTokenValues = decodedToken.split(":");
+            if (rawTokenValues.length != 2) {
+                throw new UnauthorizedAccessException("Access denied: Token or user invalid");
+            }
+            return rawTokenValues;
+        } catch (IllegalArgumentException e) {
+            throw new UnauthorizedAccessException("Token decoding filed - Access denied");
+        }
+    }
+
+    public void validateEmail(String code, User user) {
         LocalDateTime timeNow = LocalDateTime.now();
         LocalDateTime codeTime = user.getVerification().getCreatedAt();
         Duration duration = Duration.between(codeTime, timeNow);
@@ -53,7 +64,6 @@ public class AuthorizationService {
         if (duration.toHours() < CODE_EXPIRY_TIME && code.equals(verificationCode)) {
             user.setActive(true);
             userService.updateUser(user);
-            return true;
         } else {
             throw new UnauthorizedAccessException("Verification Code not valid or expired");
         }
