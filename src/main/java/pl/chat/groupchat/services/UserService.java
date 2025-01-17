@@ -31,8 +31,8 @@ public class UserService {
         this.saltSuffix = appConfig.getSaltSuffix();
     }
 
-    public Optional<User> findUserById(int id) {
-        return userRepository.findById(id);
+    public User findUserById(int id) {
+        return userRepository.findById(id).orElseThrow(()-> new UserNotFoundException("User not found"));
     }
 
     public User updateUser(User user) {
@@ -64,16 +64,15 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException("User with that email does not exist"));
     }
 
-    public boolean validatePassword(String password, User user) {
+    public void validatePassword(String password, User user) {
         if (user.getPassword().equals(hashPassword(password)) && user.isActive()) {
             if (user.getToken() != null) {
                 throw new UnauthorizedAccessException("Account already logged in");
             }
-            return true;
         } else if (!user.isActive()) {
             throw new UnauthorizedAccessException("Account not active. Please verify your e-mail");
         } else {

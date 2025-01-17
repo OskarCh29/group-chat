@@ -16,13 +16,10 @@ import java.util.List;
 @RequestMapping("/chat")
 public class ChatController {
     private final MessageService messageService;
-    private final AuthorizationService authorizationService;
 
     @Autowired
-    public ChatController(MessageService messageService,
-                          AuthorizationService authorizationService) {
+    public ChatController(MessageService messageService) {
         this.messageService = messageService;
-        this.authorizationService = authorizationService;
 
     }
 
@@ -37,7 +34,6 @@ public class ChatController {
     public ResponseEntity<MessageResponse> sendMessage(@RequestHeader("Authorization") String authorization,
                                                        @RequestBody MessageRequest messageRequest) {
 
-        authorizationService.validateUser(authorization, messageRequest);
         Message saveMessage = messageService.saveMessage(messageRequest.getMessageBody(), messageRequest.getUserId());
         MessageResponse messageResponse = new MessageResponse(saveMessage);
         return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse);
