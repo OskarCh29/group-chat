@@ -11,6 +11,12 @@ import pl.chat.groupchat.filters.SecurityFilter;
 @Getter
 public class AppConfig {
 
+    @Value("${security.saltPrefix}")
+    private String saltPrefix;
+
+    @Value("${security.saltSuffix}")
+    private String saltSuffix;
+
     @Bean
     public FilterRegistrationBean<SecurityFilter> securityFilterRegistration(SecurityFilter securityFilter) {
         FilterRegistrationBean<SecurityFilter> registrationBean = new FilterRegistrationBean<>();
@@ -18,11 +24,6 @@ public class AppConfig {
         registrationBean.addUrlPatterns("/chat/send-message");
         return registrationBean;
     }
-    @Value("${security.saltPrefix}")
-    private String saltPrefix;
-
-    @Value("${security.saltSuffix}")
-    private String saltSuffix;
 
 }
 

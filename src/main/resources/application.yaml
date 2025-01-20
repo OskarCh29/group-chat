@@ -1,8 +1,4 @@
 spring:
-  web:
-    resources:
-      static-locations:
-        - file:C:\Users\oskar\Visual Code Studio\groupChat
   jpa:
     hibernate:
       naming:

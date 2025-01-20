@@ -38,7 +38,7 @@ public class LoginController {
 
     @PostMapping("/newUser")
     public ResponseEntity<UserResponse> createUser(@RequestBody User user) {
-        userService.updateUser(user);
+        userService.saveUser(user);
         emailService.sendVerificationEmail(user.getEmail());
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
