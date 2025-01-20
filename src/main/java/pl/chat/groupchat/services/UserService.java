@@ -15,7 +15,6 @@ import pl.chat.groupchat.repositories.UserRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -32,7 +31,7 @@ public class UserService {
     }
 
     public User findUserById(int id) {
-        return userRepository.findById(id).orElseThrow(()-> new UserNotFoundException("User not found"));
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public User updateUser(User user) {
@@ -65,7 +64,7 @@ public class UserService {
     }
 
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException("User with that email does not exist"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User with that email does not exist"));
     }
 
     public void validatePassword(String password, User user) {
