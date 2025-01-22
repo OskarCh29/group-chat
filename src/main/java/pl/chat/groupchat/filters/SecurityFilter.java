@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import pl.chat.groupchat.services.AuthorizationService;
 
 import java.io.IOException;
+
 @Component
 public class SecurityFilter implements Filter {
 
@@ -22,8 +23,12 @@ public class SecurityFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String token = request.getHeader("Authorization");
-        authorizationService.validateUser(token);
-        filterChain.doFilter(request, response);
+        if (!authorizationService.validateUser(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Unauthorized: Token missing or invalid");
+        } else {
+            filterChain.doFilter(request, response);
+        }
     }
 
     @Override

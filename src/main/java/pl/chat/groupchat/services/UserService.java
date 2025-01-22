@@ -42,8 +42,12 @@ public class UserService {
         User user = userRepository.findByEmail(newUser.getEmail()).orElse(null);
         if (user != null) {
             throw new UserAlreadyExistsException("Account with this email already exists");
+
         } else if (userRepository.findByUsername(newUser.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("User with this username already exists");
+
+        } else if (!checkPasswordStrength(newUser.getPassword())) {
+            throw new UnauthorizedAccessException("Wrong password format - 6 letters, one capital, one number");
         }
         String hashPassword = hashPassword(newUser.getPassword());
         newUser.setPassword(hashPassword);
@@ -51,16 +55,8 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public void deleteById(int userId) {
-        userRepository.deleteById(userId);
-    }
-
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not Found"));
-    }
-
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
     }
 
     public User findUserByEmail(String email) {
@@ -101,5 +97,12 @@ public class UserService {
         String hashedPassword = hashPassword(newPassword);
         user.setPassword(hashedPassword);
         userRepository.save(user);
+    }
+
+    private boolean checkPasswordStrength(String password) {
+        if (password.length() < 6) {
+            return false;
+        }
+        return password.matches(".*\\d.*") && !password.matches(".*[A-Z].*");
     }
 }

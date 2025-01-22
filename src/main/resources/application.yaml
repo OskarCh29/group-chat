@@ -9,6 +9,7 @@ spring:
     password: root
     hikari:
       schema: group_chat
+
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -25,6 +26,7 @@ spring:
       mail.smtp.starttls.enable: true
   main:
     banner-mode: false
+
 security:
   saltPrefix: "e+v7qum7jjJM$q#uaNgh+$uRP3x1Q&thqmtvopoeZ#BgZWfNpe"
   saltSuffix: "Z9QXqxnrbViCjikA5Q1*!Gzo)j:pE15PrF5M//a3:b7ZuCi@=R"
