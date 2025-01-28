@@ -3,6 +3,7 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
   datasource:
     url: jdbc:mysql://localhost:3306/group_chat
     username: root
@@ -16,10 +17,10 @@ spring:
     validate-on-migrate: true
     default-schema: group_chat
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: oskartestowy1@gmail.com
-    password: rluo dfld zuev lpij
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     protocol: smtp
     properties:
       mail.smtp.auth: true

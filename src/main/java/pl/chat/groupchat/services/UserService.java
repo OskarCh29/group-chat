@@ -14,7 +14,7 @@ import pl.chat.groupchat.repositories.UserRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 @Service
 public class UserService {
@@ -100,9 +100,9 @@ public class UserService {
     }
 
     private boolean checkPasswordStrength(String password) {
-        if (password.length() < 6) {
+        if (password.length() <= 6) {
             return false;
         }
-        return password.matches(".*\\d.*") && !password.matches(".*[A-Z].*");
+        return password.matches(".*\\d.*") && password.matches(".*[A-Z].*");
     }
 }

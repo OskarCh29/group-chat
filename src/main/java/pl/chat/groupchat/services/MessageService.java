@@ -25,6 +25,7 @@ public class MessageService {
         if (messageBody == null || messageBody.trim().isEmpty()) {
             throw new InvalidMessageException("Empty message");
         }
+
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         Message message = new Message();
         message.setCreatedAt(LocalDateTime.now());

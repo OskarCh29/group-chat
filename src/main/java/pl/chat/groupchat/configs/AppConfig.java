@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import pl.chat.groupchat.filters.SecurityFilter;
 
 @Configuration
@@ -26,6 +24,5 @@ public class AppConfig {
         registrationBean.addUrlPatterns("/chat/send-message");
         return registrationBean;
     }
-
 }
 
