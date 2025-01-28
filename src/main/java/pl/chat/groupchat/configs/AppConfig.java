@@ -24,6 +24,5 @@ public class AppConfig {
         registrationBean.addUrlPatterns("/chat/send-message");
         return registrationBean;
     }
-
 }
 

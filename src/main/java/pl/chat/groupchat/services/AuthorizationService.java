@@ -25,21 +25,28 @@ public class AuthorizationService {
 
     }
 
-    public void validateUser(String rawToken) {
+    public boolean validateUser(String rawToken) {
         try {
             if (rawToken == null) {
-                throw new UnauthorizedAccessException("Access denied: Token or user missing");
+                return false;
             }
             String[] tokenValues = decodeToken(rawToken);
+            if (tokenValues.length == 0) {
+                return false;
+            }
             String userId = tokenValues[0];
             String token = tokenValues[1];
             User user = userService.findUserById(Integer.parseInt(userId));
+            if(user.getToken() == null){
+                return false;
+            }
             if (!user.getToken().equals(token)) {
-                throw new UnauthorizedAccessException("Access denied - token or user invalid");
+                return false;
             }
         } catch (NumberFormatException e) {
-            throw new UnauthorizedAccessException("Access denied - user token invalid");
+            return false;
         }
+        return true;
     }
 
     private String[] decodeToken(String rawToken) {
@@ -48,11 +55,11 @@ public class AuthorizationService {
             String decodedToken = new String(decode);
             String[] rawTokenValues = decodedToken.split(":");
             if (rawTokenValues.length != 2) {
-                throw new UnauthorizedAccessException("Access denied: Token or user invalid");
+                return new String[0];
             }
             return rawTokenValues;
         } catch (IllegalArgumentException e) {
-            throw new UnauthorizedAccessException("Token decoding filed - Access denied");
+            return new String[0];
         }
     }
 

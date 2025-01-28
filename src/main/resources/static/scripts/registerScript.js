@@ -21,7 +21,7 @@ $(document).ready(function () {
             return;
         }
         if (!validatePasswordStrength(pass)){
-            alert("Password must have one number, one capital letter and 6 characters lenght");
+            alert("Password must have one number, one capital letter and 6 characters length");
             return;
         }
 
@@ -53,7 +53,7 @@ function validateEmail(email) {
     return emailPattern.test(email);
 }
 function validatePasswordStrength(password){
-    if(password.length < 6){
+    if(password.length <= 6){
         return false;
     }
     if(!/[A-z]/.test(password)){

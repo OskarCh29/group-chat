@@ -26,4 +26,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleValidateExpiredException(ValidateExpiredException exception) {
         return ResponseEntity.status(HttpStatus.GONE).body(exception.getMessage());
     }
+
+    @ExceptionHandler(InvalidMessageException.class)
+    public ResponseEntity<Object> handleInvalidMessageException(InvalidMessageException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }

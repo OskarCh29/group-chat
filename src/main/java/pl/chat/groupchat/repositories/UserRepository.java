@@ -17,16 +17,14 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE users SET token = null", nativeQuery = true)
+    @Query("UPDATE User u SET u.token = NULL")
     void resetTokens();
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE users FROM users JOIN verification ON users.id = verification.userId "
-            + "WHERE DATEDIFF(CURDATE(),verification.createdAt) >1 AND users.isActive = FALSE ", nativeQuery = true)
+    @Query("DELETE FROM User u WHERE u.isActive = FALSE")
     void deleteInActiveUsers();
 
-    @Query(value = "SELECT users.* FROM users JOIN verification ON users.id = verification.userId "
-            + "WHERE verification.resetToken = :resetToken", nativeQuery = true)
+    @Query(value = "SELECT u FROM User u WHERE u.verification.resetToken = :resetToken")
     Optional<User> findByResetCode(String resetToken);
 }
