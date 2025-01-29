@@ -22,6 +22,5 @@ public class StartUpTasks {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-
     }
 }

@@ -1,13 +1,11 @@
 package pl.chat.groupchat;
 
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
@@ -26,9 +24,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = GroupChatApplication.class)
-@ActiveProfiles("test")
 @Testcontainers
-class MessageServiceTests {
+public class MessageServiceTests {
 
     @Container
     static final MySQLContainer MY_SQL_CONTAINER = new MySQLContainer<>("mysql:8.0.26")
@@ -43,7 +40,6 @@ class MessageServiceTests {
         registry.add("spring.datasource.password", MY_SQL_CONTAINER::getPassword);
     }
 
-
     @Autowired
     private MessageService messageService;
 
@@ -54,21 +50,12 @@ class MessageServiceTests {
     private MessageRepository messageRepository;
 
 
-    @BeforeAll
-    static void startTestContainer() {
-        MY_SQL_CONTAINER.start();
-    }
-
     @BeforeEach
-    @Transactional
-    public void setUpData() {
+    public void clearTestDataBase() {
         messageRepository.deleteAll();
         userRepository.deleteAll();
     }
 
-    @AfterEach
-    public void afterEach() {
-    }
 
     @Test
     void testSaveMessage_validMessage_saveSuccessfully() {
@@ -123,7 +110,6 @@ class MessageServiceTests {
         assertEquals("Second message", messages.get(1).getMessageBody(), "Message body should match");
     }
 
-    @Transactional
     private int getTestUserId() {
         User testUser = new User();
         testUser.setUsername("testUser");
@@ -134,7 +120,6 @@ class MessageServiceTests {
         return savedUser.getId();
     }
 
-    @Transactional
     private void initializeTestMessage() {
         User testUser = new User();
         testUser.setUsername("testUser");

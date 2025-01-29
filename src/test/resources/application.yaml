@@ -1,0 +1,28 @@
+spring:
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  flyway:
+    enabled: true
+    validate-on-migrate: true
+    locations: classpath:db/migration
+    default-schema: testdb
+  main:
+    banner-mode: false;
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+security:
+  saltPrefix: "e+v7qum7jjJM$q#uaNgh+$uRP3x1Q&thqmtvopoeZ#BgZWfNpe"
+  saltSuffix: "Z9QXqxnrbViCjikA5Q1*!Gzo)j:pE15PrF5M//a3:b7ZuCi@=R"
+
+
+
+

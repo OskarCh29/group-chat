@@ -37,7 +37,7 @@ public class AuthorizationService {
             String userId = tokenValues[0];
             String token = tokenValues[1];
             User user = userService.findUserById(Integer.parseInt(userId));
-            if(user.getToken() == null){
+            if (user.getToken() == null) {
                 return false;
             }
             if (!user.getToken().equals(token)) {

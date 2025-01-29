@@ -1,0 +1,4 @@
+username,password," ",Email field empty
+username," ",email@example.com,Password field empty
+" ",password,email@example.com,Username field empty
+username,password,@example.com,Invalid email type

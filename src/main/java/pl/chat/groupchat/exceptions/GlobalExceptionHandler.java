@@ -28,7 +28,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidMessageException.class)
-    public ResponseEntity<Object> handleInvalidMessageException(InvalidMessageException e){
+    public ResponseEntity<Object> handleInvalidMessageException(InvalidMessageException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidDataInputException.class)
+    public ResponseEntity<Object> handleInvalidDataInputException(InvalidDataInputException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }
