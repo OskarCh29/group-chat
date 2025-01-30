@@ -1,6 +1,5 @@
-package pl.chat.groupchat;
+package pl.chat.groupchat.services;
 
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -20,13 +19,12 @@ import pl.chat.groupchat.exceptions.UserAlreadyExistsException;
 import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.repositories.UserRepository;
-import pl.chat.groupchat.services.UserService;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = GroupChatApplication.class)
+@SpringBootTest
 @Testcontainers
 public class UserServiceTests {
 
@@ -50,7 +48,6 @@ public class UserServiceTests {
     private UserService userService;
 
     @BeforeEach
-    @Transactional
     public void clearTestDataBase() {
         userRepository.deleteAll();
     }
@@ -189,21 +186,26 @@ public class UserServiceTests {
 
     @ParameterizedTest
     @CsvFileSource(resources = "/test-UserValidation.csv")
-    void testPasswordValidation_throwsException(String password, String token, boolean isActive, String message) {
+    void testUserValidation_throwsException(String password, String token, boolean isActive, String message) {
         User testUser = initializeTestUser();
-        testUser.setPassword(password);
+        testUser.setPassword("b8d9c3a22561f38e75b4d3e5d010973dea7caacaa8d0c6699cfd292d402bc21d");
         testUser.setToken(token);
         testUser.setActive(isActive);
-        userRepository.save(testUser);
+        User updatedUser = userRepository.save(testUser);
 
         assertThrows(UnauthorizedAccessException.class, () -> {
-            userService.validatePassword(password, testUser);
+            userService.validateUser(password, updatedUser);
         }, message);
     }
-    @Test
-    @Disabled("To be finished")
-    void testResetPassword(){
 
+    @Test
+    void testUserValidation_userValidated() {
+        User testUser = initializeTestUser();
+        testUser.setPassword("b8d9c3a22561f38e75b4d3e5d010973dea7caacaa8d0c6699cfd292d402bc21d");
+        testUser.setToken(null);
+        User updatedUser = userRepository.save(testUser);
+        String correctPassword = "Password123";
+        assertDoesNotThrow(() -> userService.validateUser(correctPassword, updatedUser));
     }
 
     @Test

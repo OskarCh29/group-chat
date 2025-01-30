@@ -30,7 +30,7 @@ public class LoginController {
     @PostMapping("/user")
     public ResponseEntity<UserResponse> login(@RequestBody LoginRequest loginRequest) {
         User user = userService.findUserByUsername(loginRequest.getUsername());
-        userService.validatePassword(loginRequest.getPassword(), user);
+        userService.validateUser(loginRequest.getPassword(), user);
         authorizationService.updateToken(user);
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.ok(userResponse);

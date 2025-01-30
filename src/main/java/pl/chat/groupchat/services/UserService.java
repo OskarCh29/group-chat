@@ -62,15 +62,15 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public void validatePassword(String password, User user) {
-        if (user.getPassword().equals(hashPassword(password)) && user.isActive()) {
-            if (user.getToken() != null) {
-                throw new UnauthorizedAccessException("Account already logged in");
-            }
-        } else if (!user.isActive()) {
-            throw new UnauthorizedAccessException("Account not active. Please verify your e-mail");
-        } else {
-            throw new UnauthorizedAccessException("Wrong login or password!");
+    public void validateUser(String password, User user) {
+        if (!user.isActive()) {
+            throw new UnauthorizedAccessException("Account not active. Please verify your email");
+        }
+        if (user.getToken() != null) {
+            throw new UnauthorizedAccessException("Account already logged in");
+        }
+        if (!user.getPassword().equals(hashPassword(password))) {
+            throw new UnauthorizedAccessException("Wrong login or password");
         }
     }
 
@@ -107,7 +107,7 @@ public class UserService {
         Map<String, String> userFields = Map.of(
                 user.getUsername(), "Username", user.getPassword(), "Password", user.getEmail(), "Email");
         userFields.forEach((value, field) -> {
-            if (value == null || value.isBlank()) {
+            if (value.isBlank()) {
                 throw new InvalidDataInputException(field + "field empty or contains space");
             }
         });
