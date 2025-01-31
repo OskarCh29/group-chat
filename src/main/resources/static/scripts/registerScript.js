@@ -28,8 +28,7 @@ $(document).ready(function () {
         const newUser = {
             username: $("#username").val(),
             password: pass,
-            email: email,
-            token: null
+            email: email
         };
         $.ajax({
             type: "POST",

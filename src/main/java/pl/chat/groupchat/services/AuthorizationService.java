@@ -25,44 +25,6 @@ public class AuthorizationService {
 
     }
 
-    public boolean validateUser(String rawToken) {
-        try {
-            if (rawToken == null) {
-                return false;
-            }
-            String[] tokenValues = decodeToken(rawToken);
-            if (tokenValues.length == 0) {
-                return false;
-            }
-            String userId = tokenValues[0];
-            String token = tokenValues[1];
-            User user = userService.findUserById(Integer.parseInt(userId));
-            if(user.getToken() == null){
-                return false;
-            }
-            if (!user.getToken().equals(token)) {
-                return false;
-            }
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
-    }
-
-    private String[] decodeToken(String rawToken) {
-        try {
-            byte[] decode = Base64.getDecoder().decode(rawToken);
-            String decodedToken = new String(decode);
-            String[] rawTokenValues = decodedToken.split(":");
-            if (rawTokenValues.length != 2) {
-                return new String[0];
-            }
-            return rawTokenValues;
-        } catch (IllegalArgumentException e) {
-            return new String[0];
-        }
-    }
-
     public void validateEmail(String code, User user) {
         LocalDateTime timeNow = LocalDateTime.now();
         LocalDateTime codeTime = user.getVerification().getCreatedAt();
@@ -75,6 +37,42 @@ public class AuthorizationService {
             throw new UnauthorizedAccessException("Verification Code not valid or expired");
         }
 
+    }
+    public boolean validateUser(String rawToken) {
+        try {
+            if (rawToken == null) {
+                return false;
+            }
+            String[] tokenValues = decodeToken(rawToken);
+            if (tokenValues.length == 0) {
+                return false;
+            }
+            String userId = tokenValues[0];
+            String token = tokenValues[1];
+            User user = userService.findUserById(Integer.parseInt(userId));
+            if (user.getToken() == null) {
+                return false;
+            }
+            if (!user.getToken().equals(token)) {
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+    private String[] decodeToken(String rawToken) {
+        try {
+            byte[] decode = Base64.getDecoder().decode(rawToken);
+            String decodedToken = new String(decode);
+            String[] rawTokenValues = decodedToken.split(":");
+            if (rawTokenValues.length != 2) {
+                return new String[0];
+            }
+            return rawTokenValues;
+        } catch (IllegalArgumentException e) {
+            return new String[0];
+        }
     }
 
     private String generateToken() {

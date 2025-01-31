@@ -1,6 +1,7 @@
 package pl.chat.groupchat.services;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,25 @@ import java.time.LocalDateTime;
 public class EmailService {
     private static final int VERIFICATION_CODE_LENGTH = 10;
     private final EmailRepository emailRepository;
-    private final UserService userService;
     private final JavaMailSender mailSender;
+    private final UserService userService;
 
-    public EmailService(EmailRepository emailRepository, UserService userService, JavaMailSender mailSender) {
+    @Autowired
+    public EmailService(EmailRepository emailRepository,UserService userService, JavaMailSender mailSender) {
         this.emailRepository = emailRepository;
         this.userService = userService;
         this.mailSender = mailSender;
+    }
+
+    public User findUserByCode(String code) {
+        Verification verification = emailRepository.findUserByVerificationCode(code)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return verification.getUser();
+
+    }
+
+    public String generateVerificationCode() {
+        return RandomStringUtils.randomAlphabetic(VERIFICATION_CODE_LENGTH);
     }
 
     public void sendVerificationEmail(String userEmail) {
@@ -34,31 +47,6 @@ public class EmailService {
         User user = userService.findUserByEmail(userEmail);
         createVerification(user, verifyCode);
         mailSender.send(message);
-    }
-
-    public String generateVerificationCode() {
-        return RandomStringUtils.randomAlphabetic(VERIFICATION_CODE_LENGTH);
-    }
-
-    public User findUserByCode(String code) {
-        Verification verification = emailRepository.findUserByVerificationCode(code)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-        return verification.getUser();
-
-    }
-
-    private void createVerification(User user, String code) {
-        Verification refreshVerification = user.getVerification();
-        if (refreshVerification != null) {
-            refreshVerification.setVerificationCode(code);
-            refreshVerification.setCreatedAt(LocalDateTime.now());
-        }
-        Verification verification = new Verification();
-        verification.setVerificationCode(code);
-        verification.setUser(user);
-        verification.setCreatedAt(LocalDateTime.now());
-        user.setVerification(verification);
-        emailRepository.save(verification);
     }
 
     public void sendResetEmail(String email) {
@@ -77,5 +65,14 @@ public class EmailService {
         verification.setResetUsed(false);
         userService.updateUser(user);
 
+    }
+
+    private void createVerification(User user, String code) {
+        Verification verification = new Verification();
+        verification.setVerificationCode(code);
+        verification.setUser(user);
+        verification.setCreatedAt(LocalDateTime.now());
+        user.setVerification(verification);
+        emailRepository.save(verification);
     }
 }

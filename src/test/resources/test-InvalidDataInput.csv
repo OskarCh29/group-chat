@@ -1,0 +1,6 @@
+username,password," ",Email field empty
+username," ",email@example.com,Password field empty
+" ",password,email@example.com,Username field empty
+username,Password1,@example.com,Invalid email type
+@/user,password,email@example.com,Username contains special character
+username,123,email@example.com, Password weak

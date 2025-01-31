@@ -30,7 +30,7 @@ public class LoginController {
     @PostMapping("/user")
     public ResponseEntity<UserResponse> login(@RequestBody LoginRequest loginRequest) {
         User user = userService.findUserByUsername(loginRequest.getUsername());
-        userService.validatePassword(loginRequest.getPassword(), user);
+        userService.validateUser(loginRequest.getPassword(), user);
         authorizationService.updateToken(user);
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.ok(userResponse);
@@ -38,7 +38,7 @@ public class LoginController {
 
     @PostMapping("/newUser")
     public ResponseEntity<UserResponse> createUser(@RequestBody User user) {
-        userService.saveUser(user);
+        userService.saveNewUser(user);
         emailService.sendVerificationEmail(user.getEmail());
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
