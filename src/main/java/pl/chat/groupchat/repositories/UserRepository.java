@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pl.chat.groupchat.models.entities.User;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -22,8 +23,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM User u WHERE u.isActive = FALSE")
-    void deleteInActiveUsers();
+    @Query("DELETE FROM User u WHERE u.isActive = FALSE AND u.verification.createdAt < :inActiveTime")
+    void deleteInActiveUsers(LocalDateTime inActiveTime);
 
     @Query(value = "SELECT u FROM User u WHERE u.verification.resetToken = :resetToken")
     Optional<User> findByResetCode(String resetToken);

@@ -11,11 +11,12 @@ import pl.chat.groupchat.repositories.UserRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
 public class UserService {
-    private static final int RESET_LINK_DURATION = 24;
+    private static final long RESET_LINK_DURATION = 24;
     private static final int MINIMUM_PASSWORD_LENGTH = 6;
     private final UserRepository userRepository;
     private final String saltPrefix;
@@ -46,16 +47,7 @@ public class UserService {
 
     public User saveNewUser(User newUser) {
         validateUserData(newUser);
-        User user = userRepository.findByEmail(newUser.getEmail()).orElse(null);
-        if (user != null) {
-            throw new UserAlreadyExistsException("Account with this email already exists");
-
-        } else if (userRepository.findByUsername(newUser.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("User with this username already exists");
-
-        } else if (!checkPasswordStrength(newUser.getPassword())) {
-            throw new UnauthorizedAccessException("Wrong password format - 6 characters, one capital, one digit");
-        }
+        checkIfUserExists(newUser);
         String hashPassword = hashPassword(newUser.getPassword());
         newUser.setPassword(hashPassword);
 
@@ -75,10 +67,13 @@ public class UserService {
     }
 
     public void resetPassword(String resetCode, String newPassword) {
-        User user = userRepository.findByResetCode(resetCode).orElseThrow(() -> new UserNotFoundException("Link used"));
+        if (!checkPasswordStrength(newPassword)) {
+            throw new InvalidDataInputException("Wrong password format - 6 characters, one capital, one digit");
+        }
+        User user = userRepository.findByResetCode(resetCode).orElseThrow(() -> new UserNotFoundException("Invalid code"));
         Verification verification = user.getVerification();
-        Duration duration = Duration.between(LocalDateTime.now(), verification.getResetTokenCreatedAt());
-        if (verification.isResetUsed() || duration.toHours() > RESET_LINK_DURATION) {
+        Duration duration = Duration.between(verification.getResetTokenCreatedAt(),LocalDateTime.now());
+        if (verification.isResetUsed() || duration.toHours() >= RESET_LINK_DURATION) {
             throw new ValidateExpiredException("Reset Link used or expired");
         }
         verification.setResetUsed(true);
@@ -104,18 +99,33 @@ public class UserService {
     }
 
     private void validateUserData(User user) {
-        Map<String, String> userFields = Map.of(
-                user.getUsername(), "Username", user.getPassword(), "Password", user.getEmail(), "Email");
+        Map<String, String> userFields = new LinkedHashMap<>();
+        userFields.put(user.getUsername(), "Username");
+        userFields.put(user.getPassword(), "Password");
+        userFields.put(user.getEmail(), "Email");
         userFields.forEach((value, field) -> {
             if (value.isBlank()) {
-                throw new InvalidDataInputException(field + "field empty or contains space");
+                throw new InvalidDataInputException(field + " field empty or contains space");
             }
         });
-        if (!user.getUsername().matches("^[a-zA-z0-9]+$")) {
-            throw new InvalidDataInputException("Username contains special characters");
+        if (!user.getUsername().matches("^[a-zA-z0-9]{5,}$")) {
+            throw new InvalidDataInputException("Username must be 5 char length with letters at the beginning");
+        }
+        if (!checkPasswordStrength(user.getPassword())) {
+            throw new InvalidDataInputException("Wrong password format - 6 characters, one capital, one digit");
         }
         if (!user.getEmail().matches("^[a-zA-Z0-9][a-zA-Z0-9.%+-]*@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             throw new InvalidDataInputException("Invalid email type");
+        }
+    }
+
+    private void checkIfUserExists(User newUser) {
+        User user = userRepository.findByEmail(newUser.getEmail()).orElse(null);
+        if (user != null) {
+            throw new UserAlreadyExistsException("Account with this email already exists");
+
+        } else if (userRepository.findByUsername(newUser.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User with this username already exists");
         }
     }
 }

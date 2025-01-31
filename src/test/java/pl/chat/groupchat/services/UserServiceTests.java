@@ -1,7 +1,6 @@
 package pl.chat.groupchat.services;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -13,13 +12,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import pl.chat.groupchat.exceptions.InvalidDataInputException;
-import pl.chat.groupchat.exceptions.UnauthorizedAccessException;
-import pl.chat.groupchat.exceptions.UserAlreadyExistsException;
-import pl.chat.groupchat.exceptions.UserNotFoundException;
+import pl.chat.groupchat.exceptions.*;
 import pl.chat.groupchat.models.entities.User;
+import pl.chat.groupchat.models.entities.Verification;
 import pl.chat.groupchat.repositories.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -149,40 +147,6 @@ public class UserServiceTests {
         assertFalse(savedUser.isActive(), "User not verified - Should be false");
     }
 
-    @Test
-    void testSaveNewUser_UsernameInUse_throwsException() {
-        User existingUser = initializeTestUser();
-        User newUser = new User();
-        newUser.setUsername(existingUser.getUsername());
-        newUser.setPassword("StrongPassword1");
-        newUser.setEmail("testerEmail@example.com");
-
-        assertThrows(UserAlreadyExistsException.class, () -> userService.saveNewUser(newUser),
-                "User with that username already exists");
-    }
-
-    @Test
-    void testSaveNewUser_EmailInUse_throwsException() {
-        User existingUser = initializeTestUser();
-        User newUser = new User();
-        newUser.setUsername("Tester123");
-        newUser.setPassword("StrongPassword1");
-        newUser.setEmail(existingUser.getEmail());
-
-        assertThrows(UserAlreadyExistsException.class, () -> userService.saveNewUser(newUser),
-                "User with that email already exists");
-    }
-
-    @Test
-    void testSaveNewUser_WeakPassword_throwsException() {
-        User newUser = new User();
-        newUser.setUsername("Tester123");
-        newUser.setPassword("abc");
-        newUser.setEmail("testerEmail@example.com");
-
-        assertThrows(UnauthorizedAccessException.class, () -> userService.saveNewUser(newUser),
-                "Weak password provided");
-    }
 
     @ParameterizedTest
     @CsvFileSource(resources = "/test-UserValidation.csv")
@@ -209,6 +173,69 @@ public class UserServiceTests {
     }
 
     @Test
+    void testResetPassword_resetCompleted() {
+
+        String newPassword = "Password123";
+        String hashedPassword = "b8d9c3a22561f38e75b4d3e5d010973dea7caacaa8d0c6699cfd292d402bc21d";
+
+        User testUser = initializeTestUser();
+        Verification userVerification = testUser.getVerification();
+        userVerification.setResetToken("ResetCode");
+        userVerification.setResetTokenCreatedAt(LocalDateTime.now().minusHours(1));
+        userRepository.save(testUser);
+
+        userService.resetPassword("ResetCode", newPassword);
+        User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
+
+        assertTrue(updatedUser.isActive(), "Link status should be updated after use");
+        assertEquals(hashedPassword, updatedUser.getPassword(), "Password should be updated");
+    }
+
+    @Test
+    void testResetPassword_resetCodeExpired() {
+        User testUser = initializeTestUser();
+        Verification userVerification = testUser.getVerification();
+        userVerification.setResetToken("ResetCode");
+        userVerification.setResetTokenCreatedAt(LocalDateTime.now().minusHours(25));
+        userRepository.save(testUser);
+
+        assertThrows(ValidateExpiredException.class, () -> {
+            userService.resetPassword("ResetCode", "Password123");
+        }, "Reset link expires after 24h");
+    }
+
+    @Test
+    void testResetPassword_resetCodeUsed() {
+        User testUser = initializeTestUser();
+        Verification userVerification = testUser.getVerification();
+        userVerification.setResetToken("ResetCode");
+        userVerification.setResetTokenCreatedAt(LocalDateTime.now().minusHours(1));
+        userVerification.setResetUsed(true);
+        userRepository.save(testUser);
+
+        assertThrows(ValidateExpiredException.class, () -> {
+            userService.resetPassword("ResetCode", "Password123");
+        }, "Reset linked used. Cannot be used again");
+    }
+
+    @Test
+    void testResetPassword_newPasswordTooWeak() {
+        String weakPassword = "abc";
+
+        assertThrows(InvalidDataInputException.class, () -> {
+            userService.resetPassword("ValidCode", weakPassword);
+        }, "New Password too weak");
+    }
+
+    @Test
+    void testResetPassword_wrongResetCode() {
+        String wrongResetCode = "TestTest";
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.resetPassword(wrongResetCode, "Test123");
+        }, "No user with such reset code");
+    }
+
+    @Test
     void testLogoutUser_SetTokenToNull_LogoutCompleted() {
         User testUser = initializeTestUser();
 
@@ -230,10 +257,11 @@ public class UserServiceTests {
 
     @Test
     void testHashingMethod_hashesShouldBeEqual() {
-        String testPassword = "password";
+        String beforeHashPassword = "password";
         String hashedPassword = "950a610738d5b022a9747ae6ede4d595ff33ec712de842319c09e83f9cb77bbc";
 
-        assertEquals(hashedPassword, ReflectionTestUtils.invokeMethod(userService, "hashPassword", testPassword),
+        assertEquals(hashedPassword, ReflectionTestUtils.invokeMethod(
+                        userService, "hashPassword", beforeHashPassword),
                 "testPassword should be equal after hashing");
     }
 
@@ -261,6 +289,32 @@ public class UserServiceTests {
 
     }
 
+    @Test
+    void testCheckIfUserExists_UsernameInUse_throwsException() {
+        User existingUser = initializeTestUser();
+        User newUser = new User();
+        newUser.setUsername(existingUser.getUsername());
+        newUser.setPassword("StrongPassword1");
+        newUser.setEmail("testerEmail@example.com");
+
+        assertThrows(UserAlreadyExistsException.class, () -> {
+            ReflectionTestUtils.invokeMethod(userService, "checkIfUserExists", newUser);
+        }, "User with that username already exists");
+    }
+
+    @Test
+    void testCheckIfUserExists_EmailInUse_throwsException() {
+        User existingUser = initializeTestUser();
+        User newUser = new User();
+        newUser.setUsername("TestUser123");
+        newUser.setPassword("StrongPassword1");
+        newUser.setEmail(existingUser.getEmail());
+
+        assertThrows(UserAlreadyExistsException.class, () -> {
+            ReflectionTestUtils.invokeMethod(userService, "checkIfUserExists", newUser);
+        }, "User with that email already exists");
+    }
+
     private User initializeTestUser() {
         User testUser = new User();
         testUser.setUsername("testUser");
@@ -268,6 +322,11 @@ public class UserServiceTests {
         testUser.setEmail("test@testmail.com");
         testUser.setToken("TestToken123");
         testUser.setActive(true);
+
+        Verification testVerification = new Verification();
+        testVerification.setVerificationCode("TestCode");
+        testVerification.setUser(testUser);
+        testUser.setVerification(testVerification);
         userRepository.save(testUser);
         return testUser;
     }

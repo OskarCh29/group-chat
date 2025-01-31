@@ -25,6 +25,19 @@ public class AuthorizationService {
 
     }
 
+    public void validateEmail(String code, User user) {
+        LocalDateTime timeNow = LocalDateTime.now();
+        LocalDateTime codeTime = user.getVerification().getCreatedAt();
+        Duration duration = Duration.between(codeTime, timeNow);
+        String verificationCode = user.getVerification().getVerificationCode();
+        if (duration.toHours() < CODE_EXPIRY_TIME && code.equals(verificationCode)) {
+            user.setActive(true);
+            userService.updateUser(user);
+        } else {
+            throw new UnauthorizedAccessException("Verification Code not valid or expired");
+        }
+
+    }
     public boolean validateUser(String rawToken) {
         try {
             if (rawToken == null) {
@@ -48,7 +61,6 @@ public class AuthorizationService {
         }
         return true;
     }
-
     private String[] decodeToken(String rawToken) {
         try {
             byte[] decode = Base64.getDecoder().decode(rawToken);
@@ -61,20 +73,6 @@ public class AuthorizationService {
         } catch (IllegalArgumentException e) {
             return new String[0];
         }
-    }
-
-    public void validateEmail(String code, User user) {
-        LocalDateTime timeNow = LocalDateTime.now();
-        LocalDateTime codeTime = user.getVerification().getCreatedAt();
-        Duration duration = Duration.between(codeTime, timeNow);
-        String verificationCode = user.getVerification().getVerificationCode();
-        if (duration.toHours() < CODE_EXPIRY_TIME && code.equals(verificationCode)) {
-            user.setActive(true);
-            userService.updateUser(user);
-        } else {
-            throw new UnauthorizedAccessException("Verification Code not valid or expired");
-        }
-
     }
 
     private String generateToken() {
