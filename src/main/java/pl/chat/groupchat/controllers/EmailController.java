@@ -1,5 +1,6 @@
 package pl.chat.groupchat.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class EmailController {
 
     @GetMapping("/activate/{token}")
     public ResponseEntity<GenericResponse> verifyEmail(@PathVariable String token) {
-        authorizationService.validateEmail(token, emailService.findUserByCode(token));
+        authorizationService.validateEmail(token, userService.findUserByEmailCode(token));
         return ResponseEntity.ok(new GenericResponse("User Verified"));
     }
 
@@ -37,7 +38,7 @@ public class EmailController {
     }
 
     @PutMapping("/resetPassword")
-    public ResponseEntity<GenericResponse> resetPassword(@RequestBody ResetRequest resetRequest) {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestBody @Valid ResetRequest resetRequest) {
         userService.resetPassword(resetRequest.getResetCode(), resetRequest.getNewPassword());
         return ResponseEntity.ok(new GenericResponse("Password has been updated. You can log in now"));
     }

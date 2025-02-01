@@ -34,11 +34,16 @@ public class UserService {
     }
 
     public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not Found"));
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User with that email does not exist"));
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException("User with that email does not exist"));
+    }
+
+    public User findUserByEmailCode(String code) {
+        return userRepository.findByVerificationCode(code).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public User updateUser(User user) {
@@ -72,7 +77,7 @@ public class UserService {
         }
         User user = userRepository.findByResetCode(resetCode).orElseThrow(() -> new UserNotFoundException("Invalid code"));
         Verification verification = user.getVerification();
-        Duration duration = Duration.between(verification.getResetTokenCreatedAt(),LocalDateTime.now());
+        Duration duration = Duration.between(verification.getResetTokenCreatedAt(), LocalDateTime.now());
         if (verification.isResetUsed() || duration.toHours() >= RESET_LINK_DURATION) {
             throw new ValidateExpiredException("Reset Link used or expired");
         }

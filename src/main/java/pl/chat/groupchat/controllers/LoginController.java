@@ -1,5 +1,6 @@
 package pl.chat.groupchat.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +29,16 @@ public class LoginController {
     }
 
     @PostMapping("/user")
-    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<UserResponse> login(@RequestBody @Valid  LoginRequest loginRequest) {
         User user = userService.findUserByUsername(loginRequest.getUsername());
         userService.validateUser(loginRequest.getPassword(), user);
-        authorizationService.updateToken(user);
+        authorizationService.updateLoginToken(user);
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.ok(userResponse);
     }
 
     @PostMapping("/newUser")
-    public ResponseEntity<UserResponse> createUser(@RequestBody User user) {
+    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid User user) {
         userService.saveNewUser(user);
         emailService.sendVerificationEmail(user.getEmail());
         UserResponse userResponse = new UserResponse(user);
@@ -45,7 +46,7 @@ public class LoginController {
     }
 
     @PutMapping("/user")
-    public ResponseEntity<GenericResponse> logout(@RequestParam Integer userId) {
+    public ResponseEntity<GenericResponse> logout(@RequestParam @Valid  Integer userId) {
         userService.logoutUser(userId);
         return ResponseEntity.ok(new GenericResponse("User logged out"));
 

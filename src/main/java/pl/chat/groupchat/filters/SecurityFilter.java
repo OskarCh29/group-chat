@@ -23,7 +23,7 @@ public class SecurityFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String token = request.getHeader("Authorization");
-        if (!authorizationService.validateUser(token)) {
+        if (!authorizationService.validateUserToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized: Token missing or invalid");
         } else {
