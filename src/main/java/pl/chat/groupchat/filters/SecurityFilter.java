@@ -3,12 +3,10 @@ package pl.chat.groupchat.filters;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
 import pl.chat.groupchat.services.AuthorizationService;
 
 import java.io.IOException;
 
-@Component
 public class SecurityFilter implements Filter {
 
     private final AuthorizationService authorizationService;
@@ -23,7 +21,7 @@ public class SecurityFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String token = request.getHeader("Authorization");
-        if (!authorizationService.validateUser(token)) {
+        if (!authorizationService.validateUserToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized: Token missing or invalid");
         } else {

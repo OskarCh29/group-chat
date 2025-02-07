@@ -116,6 +116,29 @@ public class UserServiceTests {
     }
 
     @Test
+    void testFindByEmailCode_userFound() {
+        User testUser = initializeTestUser();
+        String verificationCode = testUser.getVerification().getVerificationCode();
+        User foundUser = userService.findUserByEmailCode(verificationCode);
+
+        assertNotNull(foundUser, "User should not be null");
+        assertNotNull(foundUser, "Should be not null");
+        assertEquals(testUser.getId(), foundUser.getId());
+        assertEquals(testUser.getUsername(), foundUser.getUsername());
+        assertEquals(testUser.getPassword(), foundUser.getPassword());
+        assertEquals(testUser.getEmail(), foundUser.getEmail());
+        assertTrue(foundUser.isActive());
+    }
+
+    @Test
+    void testFindByEmailCode_UserNotFound_throwsException() {
+        String code = "TestCode123";
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.findUserByEmailCode(code);
+        }, "Should throw UserNotFoundException");
+    }
+
+    @Test
     void testUpdateUserData_UpdateSucceeded() {
         User testUser = initializeTestUser();
         testUser.setUsername("ModifiedUser");
@@ -199,7 +222,7 @@ public class UserServiceTests {
         userVerification.setResetTokenCreatedAt(LocalDateTime.now().minusHours(25));
         userRepository.save(testUser);
 
-        assertThrows(ValidateExpiredException.class, () -> {
+        assertThrows(ValidationExpiredException.class, () -> {
             userService.resetPassword("ResetCode", "Password123");
         }, "Reset link expires after 24h");
     }
@@ -213,7 +236,7 @@ public class UserServiceTests {
         userVerification.setResetUsed(true);
         userRepository.save(testUser);
 
-        assertThrows(ValidateExpiredException.class, () -> {
+        assertThrows(ValidationExpiredException.class, () -> {
             userService.resetPassword("ResetCode", "Password123");
         }, "Reset linked used. Cannot be used again");
     }

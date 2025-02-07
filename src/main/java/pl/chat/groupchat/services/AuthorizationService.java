@@ -19,7 +19,7 @@ public class AuthorizationService {
         this.userService = userService;
     }
 
-    public void updateToken(User user) {
+    public void updateLoginToken(User user) {
         user.setToken(generateToken());
         userService.updateUser(user);
 
@@ -30,21 +30,21 @@ public class AuthorizationService {
         LocalDateTime codeTime = user.getVerification().getCreatedAt();
         Duration duration = Duration.between(codeTime, timeNow);
         String verificationCode = user.getVerification().getVerificationCode();
-        if (duration.toHours() < CODE_EXPIRY_TIME && code.equals(verificationCode)) {
+        if (duration.toHours() <= CODE_EXPIRY_TIME && code.equals(verificationCode)) {
             user.setActive(true);
             userService.updateUser(user);
         } else {
-            throw new UnauthorizedAccessException("Verification Code not valid or expired");
+            throw new UnauthorizedAccessException("Verification code incorrect or expired");
         }
 
     }
-    public boolean validateUser(String rawToken) {
+    public boolean validateUserToken(String rawToken) {
         try {
             if (rawToken == null) {
                 return false;
             }
             String[] tokenValues = decodeToken(rawToken);
-            if (tokenValues.length == 0) {
+            if (tokenValues.length != 2) {
                 return false;
             }
             String userId = tokenValues[0];

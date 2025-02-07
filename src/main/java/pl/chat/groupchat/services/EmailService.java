@@ -5,32 +5,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.entities.Verification;
-import pl.chat.groupchat.repositories.EmailRepository;
 
 import java.time.LocalDateTime;
 
 @Service
 public class EmailService {
     private static final int VERIFICATION_CODE_LENGTH = 10;
-    private final EmailRepository emailRepository;
     private final JavaMailSender mailSender;
     private final UserService userService;
 
     @Autowired
-    public EmailService(EmailRepository emailRepository,UserService userService, JavaMailSender mailSender) {
-        this.emailRepository = emailRepository;
+    public EmailService(UserService userService, JavaMailSender mailSender) {
         this.userService = userService;
         this.mailSender = mailSender;
-    }
-
-    public User findUserByCode(String code) {
-        Verification verification = emailRepository.findUserByVerificationCode(code)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-        return verification.getUser();
-
     }
 
     public String generateVerificationCode() {
@@ -39,7 +28,7 @@ public class EmailService {
 
     public void sendVerificationEmail(String userEmail) {
         String verifyCode = generateVerificationCode();
-        String link = "http://localhost:8080/email/activate/" + verifyCode;
+        String link = "http://localhost:8080/api/activate/" + verifyCode;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(userEmail);
         message.setSubject("Activation link");
@@ -64,7 +53,6 @@ public class EmailService {
         verification.setResetTokenCreatedAt(LocalDateTime.now());
         verification.setResetUsed(false);
         userService.updateUser(user);
-
     }
 
     private void createVerification(User user, String code) {
@@ -73,6 +61,6 @@ public class EmailService {
         verification.setUser(user);
         verification.setCreatedAt(LocalDateTime.now());
         user.setVerification(verification);
-        emailRepository.save(verification);
+        userService.updateUser(user);
     }
 }

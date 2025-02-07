@@ -1,5 +1,6 @@
 package pl.chat.groupchat.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +30,12 @@ public class ChatController {
         return ResponseEntity.ok(messageResponses);
     }
 
-    @PostMapping("/send-message")
+    @PostMapping("/message")
     public ResponseEntity<MessageResponse> sendMessage(@RequestHeader("Authorization") String authorization,
-                                                       @RequestBody MessageRequest messageRequest) {
+                                                       @Valid @RequestBody MessageRequest messageRequest) {
 
         Message saveMessage = messageService.saveMessage(messageRequest.getMessageBody(), messageRequest.getUserId());
         MessageResponse messageResponse = new MessageResponse(saveMessage);
         return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse);
-
     }
 }

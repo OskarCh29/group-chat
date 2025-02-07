@@ -39,7 +39,7 @@ function sendMessage() {
         };
         $.ajax({
             type: "POST",
-            url: "http://localhost:8080/chat/send-message",
+            url: "http://localhost:8080/chat/message",
             contentType: "application/json",
             data: JSON.stringify(message),
             headers: {

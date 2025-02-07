@@ -1,16 +1,20 @@
 package pl.chat.groupchat.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.requests.ResetRequest;
 import pl.chat.groupchat.models.responses.GenericResponse;
+import pl.chat.groupchat.models.responses.UserResponse;
 import pl.chat.groupchat.services.AuthorizationService;
 import pl.chat.groupchat.services.EmailService;
 import pl.chat.groupchat.services.UserService;
 
 @RestController
-@RequestMapping("/email")
+@RequestMapping("/api")
 public class EmailController {
     private final EmailService emailService;
     private final AuthorizationService authorizationService;
@@ -22,10 +26,17 @@ public class EmailController {
         this.authorizationService = authorizationService;
         this.userService = userService;
     }
+    @PostMapping("/newUser")
+    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid User user) {
+        userService.saveNewUser(user);
+        emailService.sendVerificationEmail(user.getEmail());
+        UserResponse userResponse = new UserResponse(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
 
     @GetMapping("/activate/{token}")
     public ResponseEntity<GenericResponse> verifyEmail(@PathVariable String token) {
-        authorizationService.validateEmail(token, emailService.findUserByCode(token));
+        authorizationService.validateEmail(token, userService.findUserByEmailCode(token));
         return ResponseEntity.ok(new GenericResponse("User Verified"));
     }
 
@@ -37,7 +48,7 @@ public class EmailController {
     }
 
     @PutMapping("/resetPassword")
-    public ResponseEntity<GenericResponse> resetPassword(@RequestBody ResetRequest resetRequest) {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestBody @Valid ResetRequest resetRequest) {
         userService.resetPassword(resetRequest.getResetCode(), resetRequest.getNewPassword());
         return ResponseEntity.ok(new GenericResponse("Password has been updated. You can log in now"));
     }

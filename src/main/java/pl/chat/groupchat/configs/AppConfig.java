@@ -6,6 +6,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pl.chat.groupchat.filters.SecurityFilter;
+import pl.chat.groupchat.services.AuthorizationService;
 
 @Configuration
 @Getter
@@ -16,6 +17,11 @@ public class AppConfig {
 
     @Value("${security.saltSuffix}")
     private String saltSuffix;
+
+    @Bean
+    public SecurityFilter securityFilter(AuthorizationService authorizationService){
+        return new SecurityFilter(authorizationService);
+    }
 
     @Bean
     public FilterRegistrationBean<SecurityFilter> securityFilterRegistration(SecurityFilter securityFilter) {

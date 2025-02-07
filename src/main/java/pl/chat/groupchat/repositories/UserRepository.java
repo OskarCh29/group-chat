@@ -28,4 +28,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query(value = "SELECT u FROM User u WHERE u.verification.resetToken = :resetToken")
     Optional<User> findByResetCode(String resetToken);
+
+    @Query(value = "SELECT u FROM User u WHERE u.verification.verificationCode = :verificationCode")
+    Optional<User> findByVerificationCode(String verificationCode);
 }
