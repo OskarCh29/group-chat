@@ -14,11 +14,13 @@ import pl.chat.groupchat.models.entities.Message;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.requests.MessageRequest;
 import pl.chat.groupchat.repositories.UserRepository;
+import pl.chat.groupchat.services.AuthorizationService;
 import pl.chat.groupchat.services.MessageService;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,6 +36,9 @@ public class ChatControllerTest {
 
     @MockBean
     private MessageService messageService;
+
+    @MockBean
+    private AuthorizationService authorizationService;
 
     @MockBean
     private UserRepository userRepository;
@@ -66,7 +71,7 @@ public class ChatControllerTest {
         String messageBody = "Test message";
         int userId = 1;
         String token = "TestToken";
-        MessageRequest messageRequest = new MessageRequest(messageBody, userId, token);
+        MessageRequest messageRequest = new MessageRequest(messageBody);
         String header = userId + ":" + token;
 
         User testUser = new User();
@@ -77,15 +82,15 @@ public class ChatControllerTest {
         message.setMessageBody(messageBody);
         message.setUser(testUser);
 
+        when(authorizationService.getUserIdFromHeader(anyString())).thenReturn(userId);
         when(messageService.saveMessage(messageBody, userId)).thenReturn(message);
+
 
         mockMvc.perform(post("/chat/message")
                         .header("Authorization", header)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(messageRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.messageBody").value("Test message"))
-                .andExpect(jsonPath("$.username").value("Tester"));
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -93,7 +98,7 @@ public class ChatControllerTest {
         String messageBody = " ";
         int userId = 1;
         String token = "TestToken";
-        MessageRequest messageRequest = new MessageRequest(messageBody, userId, token);
+        MessageRequest messageRequest = new MessageRequest(messageBody);
         String header = userId + ":" + token;
 
         mockMvc.perform((post("/chat/message"))

@@ -46,13 +46,10 @@ public class AuthorizationService {
             if (tokenValues.length != 2) {
                 return false;
             }
-            String userId = tokenValues[0];
+            int userId = Integer.parseInt(tokenValues[0]);
             String token = tokenValues[1];
-            User user = userService.findUserById(Integer.parseInt(userId));
-            if (user.getToken() == null) {
-                return false;
-            }
-            if (!user.getToken().equals(token)) {
+            User user = userService.findUserById(userId);
+            if (user.getToken() == null || !user.getToken().equals(token)) {
                 return false;
             }
         } catch (NumberFormatException e) {
@@ -61,15 +58,17 @@ public class AuthorizationService {
         return true;
     }
 
+    public int getUserIdFromHeader(String header) {
+        String[] values = decodeToken(header);
+        return Integer.parseInt(values[0]);
+    }
+
     private String[] decodeToken(String rawToken) {
         try {
             byte[] decode = Base64.getDecoder().decode(rawToken);
             String decodedToken = new String(decode);
             String[] rawTokenValues = decodedToken.split(":");
-            if (rawTokenValues.length != 2) {
-                return new String[0];
-            }
-            return rawTokenValues;
+            return rawTokenValues.length == 2 ? rawTokenValues : new String[0];
         } catch (IllegalArgumentException e) {
             return new String[0];
         }

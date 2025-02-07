@@ -151,6 +151,16 @@ public class AuthorizationServiceTests {
         boolean result = authorizationService.validateUserToken(rawToken);
         assertFalse(result, "User token not equal with received");
     }
+    @Test
+    void testGetUserIdFromHeader(){
+        String values = "1:Token";
+        String header = Base64.getEncoder().encodeToString(values.getBytes());
+        int expectedId = 1;
+
+        int userId =authorizationService.getUserIdFromHeader(header);
+
+        assertEquals(expectedId, userId);
+    }
 
     @Test
     void testDecodeRawToken_decodingSucceed() {

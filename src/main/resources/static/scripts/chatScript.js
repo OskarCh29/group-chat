@@ -26,16 +26,11 @@ function loadMessage() {
 function sendMessage() {
     $("#sendMessage").click(function (e) {
         e.preventDefault();
-        const userId = sessionStorage.getItem("userId");
-        const token = sessionStorage.getItem("token");
 
         const rawToken = getRawToken(userId, token);
 
         const message = {
-            messageBody: $("#textbox").val(),
-            userId: userId,
-            token: token
-
+            messageBody: $("#textbox").val()
         };
         $.ajax({
             type: "POST",

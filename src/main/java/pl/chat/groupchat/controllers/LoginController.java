@@ -22,7 +22,6 @@ public class LoginController {
         this.userService = userService;
         this.authorizationService = authorizationService;
     }
-
     @PostMapping("/user")
     public ResponseEntity<UserResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         User user = userService.findUserByUsername(loginRequest.getUsername());
@@ -31,8 +30,6 @@ public class LoginController {
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.ok(userResponse);
     }
-
-
     @PutMapping("/user")
     public ResponseEntity<GenericResponse> logout(@RequestParam @Valid Integer userId) {
         userService.logoutUser(userId);

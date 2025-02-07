@@ -28,7 +28,7 @@ public class SecurityConfig {
     public FilterRegistrationBean<SecurityFilter> securityFilterRegistration(SecurityFilter securityFilter) {
         FilterRegistrationBean<SecurityFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(securityFilter);
-        registrationBean.addUrlPatterns("/chat/send-message");
+        registrationBean.addUrlPatterns("/chat/message");
         return registrationBean;
     }
 }
