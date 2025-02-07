@@ -1,9 +1,9 @@
 package pl.chat.groupchat.services;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.configs.AppConfig;
+import pl.chat.groupchat.configs.SecurityConfig;
 import pl.chat.groupchat.exceptions.*;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.entities.Verification;
@@ -15,19 +15,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private static final long RESET_LINK_DURATION = 24;
     private static final int MINIMUM_PASSWORD_LENGTH = 6;
     private final UserRepository userRepository;
-    private final String saltPrefix;
-    private final String saltSuffix;
-
-    @Autowired
-    public UserService(UserRepository userRepository, AppConfig appConfig) {
-        this.userRepository = userRepository;
-        this.saltPrefix = appConfig.getSaltPrefix();
-        this.saltSuffix = appConfig.getSaltSuffix();
-    }
+    private final SecurityConfig securityConfig;
 
     public User findUserById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -94,7 +87,7 @@ public class UserService {
     }
 
     private String hashPassword(String password) {
-        String hashedPassword = saltPrefix + password + saltSuffix;
+        String hashedPassword = securityConfig.getSaltPrefix() + password + securityConfig.getSaltSuffix();
         return DigestUtils.sha256Hex(hashedPassword);
     }
 

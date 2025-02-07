@@ -1,19 +1,21 @@
 package pl.chat.groupchat.filters;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import pl.chat.groupchat.models.responses.GenericResponse;
 import pl.chat.groupchat.services.AuthorizationService;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
 public class SecurityFilter implements Filter {
 
     private final AuthorizationService authorizationService;
-
-    public SecurityFilter(AuthorizationService authorizationService) {
-        this.authorizationService = authorizationService;
-    }
+    private final ObjectMapper objectMapper;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
@@ -23,7 +25,9 @@ public class SecurityFilter implements Filter {
         String token = request.getHeader("Authorization");
         if (!authorizationService.validateUserToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized: Token missing or invalid");
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            objectMapper.writeValue(response.getWriter(),
+                    new GenericResponse("Unauthorized: Token missing or invalid"));
         } else {
             filterChain.doFilter(request, response);
         }

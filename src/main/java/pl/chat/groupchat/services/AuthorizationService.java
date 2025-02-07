@@ -1,5 +1,6 @@
 package pl.chat.groupchat.services;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.exceptions.UnauthorizedAccessException;
@@ -9,15 +10,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+@RequiredArgsConstructor
 @Service
 public class AuthorizationService {
     private static final int TOKEN_LENGTH = 32;
     private static final int CODE_EXPIRY_TIME = 24;
     private final UserService userService;
-
-    public AuthorizationService(UserService userService) {
-        this.userService = userService;
-    }
 
     public void updateLoginToken(User user) {
         user.setToken(generateToken());
@@ -38,6 +36,7 @@ public class AuthorizationService {
         }
 
     }
+
     public boolean validateUserToken(String rawToken) {
         try {
             if (rawToken == null) {
@@ -61,6 +60,7 @@ public class AuthorizationService {
         }
         return true;
     }
+
     private String[] decodeToken(String rawToken) {
         try {
             byte[] decode = Base64.getDecoder().decode(rawToken);

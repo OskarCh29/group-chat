@@ -1,7 +1,7 @@
 package pl.chat.groupchat.services;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -11,16 +11,11 @@ import pl.chat.groupchat.models.entities.Verification;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
     private static final int VERIFICATION_CODE_LENGTH = 10;
     private final JavaMailSender mailSender;
     private final UserService userService;
-
-    @Autowired
-    public EmailService(UserService userService, JavaMailSender mailSender) {
-        this.userService = userService;
-        this.mailSender = mailSender;
-    }
 
     public String generateVerificationCode() {
         return RandomStringUtils.randomAlphabetic(VERIFICATION_CODE_LENGTH);

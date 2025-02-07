@@ -150,7 +150,6 @@ public class AuthorizationServiceTests {
 
         boolean result = authorizationService.validateUserToken(rawToken);
         assertFalse(result, "User token not equal with received");
-
     }
 
     @Test

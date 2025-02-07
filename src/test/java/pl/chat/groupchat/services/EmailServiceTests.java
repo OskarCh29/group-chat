@@ -31,6 +31,7 @@ public class EmailServiceTests {
     @Test
     void testVerificationCodeGenerator() {
         int expectedLength = 10;
+
         String code = emailService.generateVerificationCode();
 
         assertEquals(expectedLength, code.length(), "Code should have expected length");
@@ -43,7 +44,6 @@ public class EmailServiceTests {
         testUser.setEmail(testEmail);
 
         when(userService.findUserByEmail(testEmail)).thenReturn(testUser);
-
         emailService.sendVerificationEmail(testEmail);
 
         assertNotNull(testUser.getVerification(), "Verification should be updated");
