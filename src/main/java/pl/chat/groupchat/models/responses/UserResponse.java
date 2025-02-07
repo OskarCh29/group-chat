@@ -7,13 +7,13 @@ import pl.chat.groupchat.models.entities.User;
 @Getter
 @Setter
 public class UserResponse {
-    private String username;
     private int userId;
+    private String username;
     private String token;
 
     public UserResponse(User user) {
-        this.username = user.getUsername();
         this.userId = user.getId();
+        this.username = user.getUsername();
         this.token = user.getToken();
     }
 }

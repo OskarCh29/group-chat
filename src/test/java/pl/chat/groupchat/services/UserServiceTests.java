@@ -222,7 +222,7 @@ public class UserServiceTests {
         userVerification.setResetTokenCreatedAt(LocalDateTime.now().minusHours(25));
         userRepository.save(testUser);
 
-        assertThrows(ValidateExpiredException.class, () -> {
+        assertThrows(ValidationExpiredException.class, () -> {
             userService.resetPassword("ResetCode", "Password123");
         }, "Reset link expires after 24h");
     }
@@ -236,7 +236,7 @@ public class UserServiceTests {
         userVerification.setResetUsed(true);
         userRepository.save(testUser);
 
-        assertThrows(ValidateExpiredException.class, () -> {
+        assertThrows(ValidationExpiredException.class, () -> {
             userService.resetPassword("ResetCode", "Password123");
         }, "Reset linked used. Cannot be used again");
     }

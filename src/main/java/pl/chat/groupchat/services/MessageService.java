@@ -1,7 +1,6 @@
 package pl.chat.groupchat.services;
 
 import org.springframework.stereotype.Service;
-import pl.chat.groupchat.exceptions.InvalidMessageException;
 import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.Message;
 import pl.chat.groupchat.models.entities.User;
@@ -22,10 +21,6 @@ public class MessageService {
     }
 
     public Message saveMessage(String messageBody, int userId) {
-        if (messageBody == null || messageBody.trim().isEmpty()) {
-            throw new InvalidMessageException("Empty message");
-        }
-
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         Message message = new Message();
         message.setCreatedAt(LocalDateTime.now());

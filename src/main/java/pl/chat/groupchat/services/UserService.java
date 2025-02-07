@@ -79,7 +79,7 @@ public class UserService {
         Verification verification = user.getVerification();
         Duration duration = Duration.between(verification.getResetTokenCreatedAt(), LocalDateTime.now());
         if (verification.isResetUsed() || duration.toHours() >= RESET_LINK_DURATION) {
-            throw new ValidateExpiredException("Reset Link used or expired");
+            throw new ValidationExpiredException("Reset Link used or expired");
         }
         verification.setResetUsed(true);
         String hashedPassword = hashPassword(newPassword);
@@ -88,7 +88,7 @@ public class UserService {
     }
 
     public void logoutUser(Integer userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = findUserById(userId);
         user.setToken(null);
         userRepository.save(user);
     }

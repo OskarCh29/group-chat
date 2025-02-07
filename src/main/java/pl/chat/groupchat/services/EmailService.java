@@ -28,7 +28,7 @@ public class EmailService {
 
     public void sendVerificationEmail(String userEmail) {
         String verifyCode = generateVerificationCode();
-        String link = "http://localhost:8080/email/activate/" + verifyCode;
+        String link = "http://localhost:8080/api/activate/" + verifyCode;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(userEmail);
         message.setSubject("Activation link");

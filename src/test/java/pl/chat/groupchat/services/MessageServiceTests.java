@@ -9,7 +9,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import pl.chat.groupchat.exceptions.InvalidMessageException;
 import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.Message;
 import pl.chat.groupchat.models.entities.User;
@@ -67,21 +66,6 @@ public class MessageServiceTests {
         assertEquals(userId, savedMessage.getUser().getId(), "Users should match");
         assertNotNull(savedMessage.getCreatedAt(), "Should be created at the initialization");
 
-    }
-
-    @Test
-    void testSaveMessage_emptyMessage_throwException() {
-        int userId = getTestUserId();
-
-        String emptyMessage = "";
-        String nullMessage = null;
-
-        assertThrows(InvalidMessageException.class, () -> {
-            messageService.saveMessage(emptyMessage, userId);
-        }, "Should throw InvalidMessageException");
-        assertThrows(InvalidMessageException.class, () -> {
-            messageService.saveMessage(nullMessage, userId);
-        }, "Should throw InvalidMessageException");
     }
 
     @Test

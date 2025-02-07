@@ -34,7 +34,7 @@ public class AuthorizationService {
             user.setActive(true);
             userService.updateUser(user);
         } else {
-            throw new UnauthorizedAccessException("Verification Code not valid or expired");
+            throw new UnauthorizedAccessException("Verification code incorrect or expired");
         }
 
     }
