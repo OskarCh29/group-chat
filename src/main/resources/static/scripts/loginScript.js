@@ -13,6 +13,8 @@ $(document).ready(function () {
             contentType: "application/json",
             data: JSON.stringify(loginData),
             success: function (response) {
+                sessionStorage.setItem("userId", response.userId);
+                sessionStorage.setItem("token", response.token);
                 window.location.href = "/chat.html";
             },
             error: function (error) {

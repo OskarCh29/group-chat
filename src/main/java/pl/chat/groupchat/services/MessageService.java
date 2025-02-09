@@ -2,6 +2,7 @@ package pl.chat.groupchat.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.chat.groupchat.exceptions.InvalidDataInputException;
 import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.Message;
 import pl.chat.groupchat.models.entities.User;
@@ -18,6 +19,9 @@ public class MessageService {
     private final UserRepository userRepository;
 
     public Message saveMessage(String messageBody, int userId) {
+        if (messageBody.trim().isEmpty()) {
+            throw new InvalidDataInputException("Message empty");
+        }
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         Message message = new Message();
         message.setCreatedAt(LocalDateTime.now());

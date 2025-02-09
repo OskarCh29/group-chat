@@ -56,7 +56,7 @@ public class UserService {
         if (!user.isActive()) {
             throw new UnauthorizedAccessException("Account not active. Please verify your email");
         }
-        if (user.getToken() != null) {
+        if (user.getToken() != null && user.getPassword().equals(hashPassword(password))){
             throw new UnauthorizedAccessException("Account already logged in");
         }
         if (!user.getPassword().equals(hashPassword(password))) {

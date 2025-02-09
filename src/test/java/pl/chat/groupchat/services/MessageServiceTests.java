@@ -9,6 +9,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import pl.chat.groupchat.exceptions.InvalidDataInputException;
 import pl.chat.groupchat.exceptions.UserNotFoundException;
 import pl.chat.groupchat.models.entities.Message;
 import pl.chat.groupchat.models.entities.User;
@@ -66,6 +67,16 @@ public class MessageServiceTests {
         assertEquals(userId, savedMessage.getUser().getId(), "Users should match");
         assertNotNull(savedMessage.getCreatedAt(), "Should be created at the initialization");
 
+    }
+
+    @Test
+    void testSaveMessage_messageEmpty() {
+        String messageBody = "";
+        int userId = getTestUserId();
+
+        assertThrows(InvalidDataInputException.class, () -> {
+            messageService.saveMessage(messageBody, userId);
+        }, "Should throw exception - messageEmpty");
     }
 
     @Test
