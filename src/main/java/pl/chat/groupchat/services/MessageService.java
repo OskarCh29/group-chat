@@ -1,6 +1,7 @@
 package pl.chat.groupchat.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.exceptions.InvalidDataInputException;
 import pl.chat.groupchat.exceptions.UserNotFoundException;
@@ -17,6 +18,7 @@ import java.util.List;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     public Message saveMessage(String messageBody, int userId) {
         if (messageBody.trim().isEmpty()) {
@@ -33,5 +35,4 @@ public class MessageService {
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
     }
-
 }

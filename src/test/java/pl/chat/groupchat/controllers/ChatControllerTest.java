@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +45,9 @@ public class ChatControllerTest {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     @Test
     void testGetAllMessages_loadSucceeded() throws Exception {
         User testUser = new User();
@@ -60,7 +64,7 @@ public class ChatControllerTest {
 
         when(messageService.getAllMessages()).thenReturn(messageList);
 
-        mockMvc.perform((get("/messages"))
+        mockMvc.perform((get("/chat"))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].messageBody").value("First message"))
@@ -82,12 +86,13 @@ public class ChatControllerTest {
 
         Message message = new Message();
         message.setMessageBody(messageBody);
+        message.setCreatedAt(LocalDateTime.now());
         message.setUser(testUser);
 
         when(authorizationService.getUserIdFromHeader(anyString())).thenReturn(userId);
         when(messageService.saveMessage(messageBody, userId)).thenReturn(message);
 
-        mockMvc.perform(post("/chat")
+        mockMvc.perform(post("/chat/message")
                         .header("Authorization", header)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(messageRequest)))
@@ -107,7 +112,7 @@ public class ChatControllerTest {
         MessageRequest messageRequest = new MessageRequest(messageBody);
         String header = userId + ":" + token;
 
-        mockMvc.perform(post("/chat")
+        mockMvc.perform(post("/chat/message")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", header)
                         .content(new ObjectMapper().writeValueAsString(messageRequest)))

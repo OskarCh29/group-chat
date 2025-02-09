@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import pl.chat.groupchat.models.entities.Message;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
