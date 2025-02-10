@@ -73,7 +73,6 @@ public class EmailControllerTest {
         testUser.setUsername("Tester");
         testUser.setToken("Token");
 
-
         when(userService.saveNewUser(any(User.class))).thenThrow(new UserAlreadyExistsException("User exists"));
 
         mockMvc.perform((post("/api/newUser"))
@@ -90,7 +89,6 @@ public class EmailControllerTest {
         testUser.setUsername("ab");
         testUser.setToken("Token");
 
-
         when(userService.saveNewUser(any(User.class))).thenThrow(
                 new InvalidDataInputException("Username format invalid"));
 
@@ -104,6 +102,7 @@ public class EmailControllerTest {
     @Test
     void testActivateAccount_Ok() throws Exception {
         String token = "testToken";
+
         doNothing().when(authorizationService).validateEmail(anyString(), any(User.class));
 
         mockMvc.perform((get("/api/activate/{token}", token)))
@@ -114,6 +113,7 @@ public class EmailControllerTest {
     @Test
     void testActivateAccount_Code() throws Exception {
         String token = "testToken";
+
         doThrow(new UnauthorizedAccessException("Token incorrect"))
                 .when(authorizationService).validateEmail(anyString(), nullable(User.class));
 
@@ -163,6 +163,5 @@ public class EmailControllerTest {
                         .content(new ObjectMapper().writeValueAsString(resetRequest)))
                 .andExpect(status().isGone())
                 .andExpect(content().string("Code expired"));
-
     }
 }

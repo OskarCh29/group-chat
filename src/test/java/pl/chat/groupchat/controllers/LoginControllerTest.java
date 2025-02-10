@@ -93,6 +93,7 @@ public class LoginControllerTest {
         int userId = 1;
         User testUser = new User();
         testUser.setToken("TestToken");
+
         when(userService.findUserById(userId)).thenReturn(testUser);
 
         mockMvc.perform((put("/api/user"))
@@ -101,15 +102,15 @@ public class LoginControllerTest {
                 .andExpect(status().isOk());
 
         verify(userService).logoutUser(userId);
-
-
     }
 
     @Test
     void testLogoutUser_logoutNotFound() throws Exception {
         int userId = -1;
+
         doThrow(new UserNotFoundException("User with that id does not exist"))
                 .when(userService).logoutUser(userId);
+
         mockMvc.perform((put("/api/user"))
                         .param("userId", String.valueOf(userId))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -131,5 +132,4 @@ public class LoginControllerTest {
                         .param("userId","ABC"))
                 .andExpect(status().isBadRequest());
     }
-
 }

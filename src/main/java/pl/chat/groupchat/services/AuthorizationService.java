@@ -1,5 +1,6 @@
 package pl.chat.groupchat.services;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import pl.chat.groupchat.exceptions.UnauthorizedAccessException;
@@ -9,15 +10,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+@RequiredArgsConstructor
 @Service
 public class AuthorizationService {
     private static final int TOKEN_LENGTH = 32;
     private static final int CODE_EXPIRY_TIME = 24;
     private final UserService userService;
-
-    public AuthorizationService(UserService userService) {
-        this.userService = userService;
-    }
 
     public void updateLoginToken(User user) {
         user.setToken(generateToken());
@@ -38,6 +36,7 @@ public class AuthorizationService {
         }
 
     }
+
     public boolean validateUserToken(String rawToken) {
         try {
             if (rawToken == null) {
@@ -47,13 +46,10 @@ public class AuthorizationService {
             if (tokenValues.length != 2) {
                 return false;
             }
-            String userId = tokenValues[0];
+            int userId = Integer.parseInt(tokenValues[0]);
             String token = tokenValues[1];
-            User user = userService.findUserById(Integer.parseInt(userId));
-            if (user.getToken() == null) {
-                return false;
-            }
-            if (!user.getToken().equals(token)) {
+            User user = userService.findUserById(userId);
+            if (user.getToken() == null || !user.getToken().equals(token)) {
                 return false;
             }
         } catch (NumberFormatException e) {
@@ -61,15 +57,18 @@ public class AuthorizationService {
         }
         return true;
     }
+
+    public int getUserIdFromHeader(String header) {
+        String[] values = decodeToken(header);
+        return Integer.parseInt(values[0]);
+    }
+
     private String[] decodeToken(String rawToken) {
         try {
             byte[] decode = Base64.getDecoder().decode(rawToken);
             String decodedToken = new String(decode);
             String[] rawTokenValues = decodedToken.split(":");
-            if (rawTokenValues.length != 2) {
-                return new String[0];
-            }
-            return rawTokenValues;
+            return rawTokenValues.length == 2 ? rawTokenValues : new String[0];
         } catch (IllegalArgumentException e) {
             return new String[0];
         }

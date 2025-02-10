@@ -1,5 +1,6 @@
 package pl.chat.groupchat.configs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -10,7 +11,7 @@ import pl.chat.groupchat.services.AuthorizationService;
 
 @Configuration
 @Getter
-public class AppConfig {
+public class SecurityConfig {
 
     @Value("${security.saltPrefix}")
     private String saltPrefix;
@@ -19,15 +20,15 @@ public class AppConfig {
     private String saltSuffix;
 
     @Bean
-    public SecurityFilter securityFilter(AuthorizationService authorizationService){
-        return new SecurityFilter(authorizationService);
+    public SecurityFilter securityFilter(AuthorizationService authorizationService, ObjectMapper mapper) {
+        return new SecurityFilter(authorizationService, mapper);
     }
 
     @Bean
     public FilterRegistrationBean<SecurityFilter> securityFilterRegistration(SecurityFilter securityFilter) {
         FilterRegistrationBean<SecurityFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(securityFilter);
-        registrationBean.addUrlPatterns("/chat/send-message");
+        registrationBean.addUrlPatterns("/chat/message");
         return registrationBean;
     }
 }

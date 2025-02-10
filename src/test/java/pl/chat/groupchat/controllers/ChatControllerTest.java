@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,11 +15,14 @@ import pl.chat.groupchat.models.entities.Message;
 import pl.chat.groupchat.models.entities.User;
 import pl.chat.groupchat.models.requests.MessageRequest;
 import pl.chat.groupchat.repositories.UserRepository;
+import pl.chat.groupchat.services.AuthorizationService;
 import pl.chat.groupchat.services.MessageService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,47 +40,56 @@ public class ChatControllerTest {
     private MessageService messageService;
 
     @MockBean
+    private AuthorizationService authorizationService;
+
+    @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     @Test
-    void testGetAllMessages_getOK() throws Exception {
+    void testGetAllMessages_loadSucceeded() throws Exception {
         User testUser = new User();
         testUser.setUsername("Tester");
-        Message testMessage = new Message();
+        Message firstMessage = new Message();
         Message secondMessage = new Message();
-        testMessage.setUser(testUser);
+        firstMessage.setMessageBody("First message");
+        secondMessage.setMessageBody("Second message");
+        firstMessage.setCreatedAt(LocalDateTime.now());
+        secondMessage.setCreatedAt(LocalDateTime.now());
+        firstMessage.setUser(testUser);
         secondMessage.setUser(testUser);
-        testMessage.setMessageBody("Test");
-        secondMessage.setMessageBody("Message");
-        List<Message> messages = List.of(testMessage, secondMessage);
+        List<Message> messageList = List.of(firstMessage, secondMessage);
 
-        when(messageService.getAllMessages()).thenReturn(messages);
+        when(messageService.getAllMessages()).thenReturn(messageList);
 
-        mockMvc.perform(get("/chat"))
+        mockMvc.perform((get("/chat"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].messageBody").value("Test"))
-                .andExpect(jsonPath("$[1].messageBody").value("Message"))
-                .andExpect(jsonPath("$[0].username").value(testUser.getUsername()))
-                .andExpect(jsonPath("$[1].username").value(testUser.getUsername()));
+                .andExpect(jsonPath("$.[0].messageBody").value("First message"))
+                .andExpect(jsonPath("$.[1].messageBody").value("Second message"))
+                .andExpect(jsonPath("$.[0].username").value("Tester"));
+
     }
 
     @Test
-    void testSendMessage_CREATED() throws Exception {
+    void test_handleMessage() throws Exception {
         String messageBody = "Test message";
         int userId = 1;
         String token = "TestToken";
-        MessageRequest messageRequest = new MessageRequest(messageBody, userId, token);
+        MessageRequest messageRequest = new MessageRequest(messageBody);
         String header = userId + ":" + token;
 
         User testUser = new User();
-        testUser.setId(userId);
         testUser.setUsername("Tester");
 
         Message message = new Message();
         message.setMessageBody(messageBody);
+        message.setCreatedAt(LocalDateTime.now());
         message.setUser(testUser);
 
+        when(authorizationService.getUserIdFromHeader(anyString())).thenReturn(userId);
         when(messageService.saveMessage(messageBody, userId)).thenReturn(message);
 
         mockMvc.perform(post("/chat/message")
@@ -84,19 +97,22 @@ public class ChatControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(messageRequest)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.messageBody").value("Test message"))
+                .andExpect(jsonPath("$.messageBody").value(messageBody))
                 .andExpect(jsonPath("$.username").value("Tester"));
+
+        verify(authorizationService).getUserIdFromHeader(anyString());
+        verify(messageService).saveMessage(messageBody, userId);
     }
 
     @Test
-    void testSendMessage_emptyMessageBadRequest() throws Exception {
+    void test_handleMessage_emptyMessageBadRequest() throws Exception {
         String messageBody = " ";
         int userId = 1;
         String token = "TestToken";
-        MessageRequest messageRequest = new MessageRequest(messageBody, userId, token);
+        MessageRequest messageRequest = new MessageRequest(messageBody);
         String header = userId + ":" + token;
 
-        mockMvc.perform((post("/chat/message"))
+        mockMvc.perform(post("/chat/message")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", header)
                         .content(new ObjectMapper().writeValueAsString(messageRequest)))
@@ -104,5 +120,6 @@ public class ChatControllerTest {
                 .andExpect(content().json("[\"Message empty\"]"));
     }
 }
+
 
 
