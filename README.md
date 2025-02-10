@@ -24,8 +24,7 @@ git clone https://github.com/OskarCh29/group-chat.git
 
 4. Navigate to the project directory (pom.xml file location) via terminal 
      * cd group-chat
-     * Install dependencies (if any) : mvn install
-     * Run the application: mvn spring-boot:rur
+     * Run the application: mvn spring-boot:run
        
 ## How to use?
 After starting application open the app in your browser (http://localhost:8080).
@@ -34,7 +33,8 @@ Start chatting with other users in the chat window in real time. For visual impr
 
 ## Testing
 To run tests use : mvn test
-* Be aware that testing requires Docker Container for integration tests with MySQL 
+* Be aware that testing requires Docker Container for integration tests with MySQL
+* Basic configuration settled in testClasses (for specific preferences need to be updated with version,userdata)
 
 # Functions
 - User authentication with generated tokens
