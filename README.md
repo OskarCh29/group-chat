@@ -9,7 +9,7 @@ Application provides a function to set up own account with email verification.
 - Spring boot 2.5 +
 - Maven
 
-## Instalation and Set Up
+## Installation and Set Up
 
 1. Clone the repository
 git clone https://github.com/OskarCh29/group-chat.git
@@ -22,9 +22,11 @@ git clone https://github.com/OskarCh29/group-chat.git
      * username,password for mail service could be provided in file or as variables
    
 
-4. Navigate to the project directory (pom.xml file location) via terminal 
-     * cd group-chat
-     * Run the application: mvn spring-boot:run
+4. Navigate to the project directory (pom.xml file location) via terminal and start the app
+   ```bash
+   cd group-chat
+   mvn spring-boot:run
+   
        
 ## How to use?
 After starting application open the app in your browser (http://localhost:8080).
